@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASHA CARE AI — Hybrid Quantum-Inspired Health Screening</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0a142e;
+    --panel:#2d4069;
+    --panel2:#182338;
+    --border:rgba(255,255,255,0.09);
+    --text:#EAF1FB;
+    --dim:#93A2BD;
+    --violet:#8B7CF6;
+    --violet-dim:rgba(139,124,246,0.15);
+    --teal:#33D6BD;
+    --teal-dim:rgba(51,214,189,0.15);
+    --amber:#F2A65A;
+    --red:#EF5350;
+    --red-dim:rgba(190, 67, 67, 0.14);
+    --radius:16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(139,124,246,0.10), transparent 45%),
+      radial-gradient(circle at 100% 20%, rgba(51,214,189,0.08), transparent 40%),
+      var(--void);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    line-height:1.5;
+  }
+  [dir="rtl"] body{direction:rtl;}
+  h1,h2,h3,.display{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+  button{font-family:inherit;cursor:pointer;}
+
+  /* ---------- header ---------- */
+  header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 28px;
+    border-bottom:1px solid var(--border);
+    position:sticky;top:0;z-index:50;
+    background:rgba(10,15,28,0.85);
+    backdrop-filter:blur(10px);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:30px;height:30px;position:relative;flex:none;
+  }
+  .brand-mark svg{width:100%;height:100%;}
+  .brand-name{font-family:'Fraunces',serif;font-size:20px;font-weight:600;}
+  .brand-name em{font-style:italic;color:var(--violet);}
+
+  .lang-select-wrap{position:relative;}
+  select.lang-select{
+    appearance:none;background:var(--panel2);color:var(--text);
+    border:1px solid var(--border);border-radius:999px;
+    padding:9px 34px 9px 16px;font-size:13px;font-family:'IBM Plex Mono',monospace;
+    letter-spacing:0.02em;
+  }
+  [dir="rtl"] select.lang-select{padding:9px 16px 9px 34px;}
+  .lang-select-wrap::after{
+    content:'⌄';position:absolute;right:14px;top:50%;transform:translateY(-55%);
+    color:var(--dim);pointer-events:none;font-size:14px;
+  }
+  [dir="rtl"] .lang-select-wrap::after{right:auto;left:14px;}
+
+  /* ---------- shell ---------- */
+  main{max-width:760px;margin:0 auto;padding:40px 20px 120px;}
+
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--teal);background:var(--teal-dim);border:1px solid rgba(51,214,189,0.3);
+    padding:6px 12px;border-radius:999px;margin-bottom:20px;
+  }
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:pulse 1.8s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.25;}}
+
+  h1.hero{font-size:clamp(30px,5vw,44px);margin:0 0 14px;}
+  p.sub{color:var(--dim);font-size:16px;max-width:52ch;margin:0 0 30px;}
+
+  /* ---------- signature pulse->qubit line ---------- */
+  .signature{width:100%;max-width:560px;margin:8px 0 34px;}
+  .signature svg{width:100%;height:auto;display:block;}
+  .sig-path{
+    fill:none;stroke:url(#sigGrad);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+    stroke-dasharray:900;stroke-dashoffset:900;
+    animation:draw 2.4s cubic-bezier(.4,0,.2,1) forwards;
+  }
+  .sig-node{fill:var(--violet);opacity:0;animation:nodeIn 0.6s ease forwards;}
+  .sig-node.n1{animation-delay:1.6s;} .sig-node.n2{animation-delay:1.85s;}
+  .sig-node.n3{animation-delay:2.1s;} .sig-node.n4{animation-delay:2.35s;}
+  @keyframes draw{to{stroke-dashoffset:0;}}
+  @keyframes nodeIn{to{opacity:1;}}
+  @media (prefers-reduced-motion: reduce){
+    .sig-path{stroke-dashoffset:0;animation:none;}
+    .sig-node{opacity:1;animation:none;}
+  }
+
+  /* ---------- mood chips ---------- */
+  .mood-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:30px;}
+  .chip{
+    border:1px solid var(--border);background:var(--panel);color:var(--text);
+    padding:12px 18px;border-radius:12px;font-size:14.5px;font-weight:500;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .chip:hover{border-color:var(--violet);transform:translateY(-1px);}
+  .chip.selected{background:var(--violet-dim);border-color:var(--violet);color:#fff;}
+
+  .btn-primary{
+    background:linear-gradient(135deg,var(--violet),#6a5cf0);
+    color:#fff;border:none;border-radius:12px;padding:14px 26px;
+    font-size:15px;font-weight:600;display:inline-flex;align-items:center;gap:8px;
+    box-shadow:0 8px 24px -8px rgba(139,124,246,0.55);
+    transition:transform .12s, box-shadow .12s;
+  }
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 28px -6px rgba(139,124,246,0.7);}
+  .btn-primary:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-secondary{
+    background:transparent;color:var(--dim);border:1px solid var(--border);
+    border-radius:12px;padding:13px 22px;font-size:14.5px;font-weight:500;
+  }
+  .btn-secondary:hover{color:var(--text);border-color:var(--dim);}
+
+  /* ---------- progress dots ---------- */
+  .steps{display:flex;gap:6px;align-items:center;margin-bottom:34px;}
+  .step-dot{
+    flex:1;height:4px;border-radius:2px;background:var(--border);position:relative;overflow:hidden;
+  }
+  .step-dot.done{background:var(--teal);}
+  .step-dot.active{background:var(--panel2);}
+  .step-dot.active::after{
+    content:'';position:absolute;inset:0;background:var(--violet);
+    animation:fillstep 0.4s ease forwards;
+  }
+  @keyframes fillstep{from{width:0;}to{width:100%;}}
+  .step-label-row{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.04em;margin-bottom:8px;text-transform:uppercase;}
+
+  /* ---------- symptom grid ---------- */
+  .symptom-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:30px;}
+  .symptom-card{
+    border:1px solid var(--border);background:var(--panel);border-radius:14px;
+    padding:16px 14px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;
+    transition:border-color .15s, background .15s;
+    text-align:start;
+  }
+  .symptom-card:hover{border-color:rgba(139,124,246,0.5);}
+  .symptom-card.selected{background:var(--violet-dim);border-color:var(--violet);}
+  .symptom-card .ic{font-size:22px;}
+  .symptom-card .lbl{font-size:13.5px;font-weight:500;line-height:1.3;}
+  .symptom-card .check{
+    margin-left:auto;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--dim);
+    display:flex;align-items:center;justify-content:center;font-size:12px;flex:none;
+  }
+  [dir="rtl"] .symptom-card .check{margin-left:0;margin-right:auto;}
+  .symptom-card.selected .check{background:var(--violet);border-color:var(--violet);color:#fff;}
+  .symptom-top{display:flex;align-items:flex-start;width:100%;gap:8px;}
+
+  /* ---------- question card ---------- */
+  .qcard{
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:34px 28px;margin-bottom:26px;
+  }
+  .qcount{font-family:'IBM Plex Mono',monospace;color:var(--teal);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
+  .qtext{font-family:'Fraunces',serif;font-size:22px;font-weight:500;margin:0 0 26px;}
+  .yn-row{display:flex;gap:12px;}
+  .yn-btn{
+    flex:1;padding:16px;border-radius:12px;border:1px solid var(--border);background:var(--panel2);
+    font-size:15px;font-weight:600;color:var(--text);transition:all .12s;
+  }
+  .yn-btn.yes:hover{border-color:var(--teal);background:var(--teal-dim);}
+  .yn-btn.no:hover{border-color:var(--red);background:var(--red-dim);}
+
+  /* ---------- results ---------- */
+  .result-card{
+    background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);
+    padding:26px 24px;margin-bottom:16px;
+  }
+  .result-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:14px;}
+  .result-name{font-family:'Fraunces',serif;font-size:19px;font-weight:600;margin:0;}
+  .result-pct{font-family:'IBM Plex Mono',monospace;font-size:22px;font-weight:600;color:var(--violet);white-space:nowrap;}
+  .bar-track{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-bottom:16px;}
+  .bar-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--teal));border-radius:3px;width:0;transition:width 1s cubic-bezier(.4,0,.2,1);}
+  .result-row{display:flex;gap:10px;font-size:14px;color:var(--dim);margin-bottom:8px;align-items:flex-start;}
+  .result-row b{color:var(--text);font-weight:600;min-width:110px;flex:none;}
+  .care-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+
+  .banner{
+    border-radius:14px;padding:18px 20px;margin-bottom:22px;display:flex;gap:14px;align-items:flex-start;
+  }
+  .banner.emergency{background:var(--red-dim);border:1px solid rgba(239,83,80,0.45);}
+  .banner.info{background:var(--panel2);border:1px solid var(--border);}
+  .banner .b-icon{font-size:22px;flex:none;}
+  .banner h3{margin:0 0 6px;font-size:16px;}
+  .banner p{margin:0;font-size:13.5px;color:var(--dim);line-height:1.5;}
+  .banner.emergency h3{color:var(--red);}
+  .banner.emergency p{color:#f2c4c3;}
+
+  /* ---------- reminders ---------- */
+  .reminder-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:10px;}
+  .field-row{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  .field-row label{font-size:12.5px;color:var(--dim);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;}
+  input[type=text],input[type=datetime-local]{
+    background:var(--panel2);border:1px solid var(--border);color:var(--text);
+    padding:12px 14px;border-radius:10px;font-size:14px;font-family:inherit;width:100%;
+  }
+  input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.6;}
+  .reminder-item{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    background:var(--panel2);border:1px solid var(--border);border-radius:10px;
+    padding:12px 14px;margin-bottom:8px;font-size:13.5px;
+  }
+  .reminder-item .rtime{color:var(--teal);font-family:'IBM Plex Mono',monospace;font-size:12px;display:block;margin-top:2px;}
+  .rm-del{background:none;border:none;color:var(--dim);font-size:13px;padding:4px 8px;}
+  .rm-del:hover{color:var(--red);}
+
+  /* ---------- sticky disclaimer ---------- */
+  .disclaimer-bar{
+    position:fixed;bottom:0;left:0;right:0;z-index:60;
+    background:rgba(10,15,28,0.92);backdrop-filter:blur(10px);
+    border-top:1px solid var(--border);
+    padding:12px 20px;text-align:center;font-size:12px;color:var(--dim);
+  }
+  .disclaimer-bar b{color:var(--amber);}
+
+  footer.note{max-width:760px;margin:40px auto 90px;padding:0 20px;color:var(--dim);font-size:12.5px;text-align:center;}
+
+  @media(max-width:520px){
+    main{padding:26px 16px 130px;}
+    .qcard{padding:24px 18px;}
+    .result-top{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 30 30" fill="none">
+        <circle cx="15" cy="15" r="13" stroke="#8B7CF6" stroke-width="1.4" opacity="0.5"/>
+        <path d="M6 16 L10 16 L12 10 L16 21 L18 16 L24 16" stroke="#33D6BD" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="6" cy="16" r="1.6" fill="#8B7CF6"/>
+        <circle cx="24" cy="16" r="1.6" fill="#8B7CF6"/>
+      </svg>
+    </div>
+    <div class="brand-name">ASHA CARE AI<em></em></div>
+  </div>
+  <div class="lang-select-wrap">
+    <select class="lang-select" id="langSelect"></select>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<footer class="note" id="footerNote"></footer>
+
+<div class="disclaimer-bar" id="disclaimerBar"></div>
+
+<script>
+/* ============================= DATA ============================= */
+const LANGS = [
+  {code:'en',name:'English'},{code:'es',name:'Español'},{code:'fr',name:'Français'},
+  {code:'de',name:'Deutsch'},{code:'hi',name:'हिन्दी'},{code:'bn',name:'বাংলা'},
+  {code:'ar',name:'العربية'},{code:'pt',name:'Português'},{code:'ru',name:'Русский'},
+  {code:'zh',name:'中文'}
+];
+const RTL = ['ar'];
+
+const SYMPTOM_IDS = ['fever','cough','headache','fatigue','soreThroat','bodyAche','nausea','diarrhea',
+  'chestPain','breathShort','dizziness','rash','jointPain','abdominalPain','runnyNose','lossAppetite',
+  'frequentUrination','anxietyMood','insomnia','burningUrination'];
+const SYMPTOM_ICONS = {fever:'🌡️',cough:'😮‍💨',headache:'🧠',fatigue:'🥱',soreThroat:'😣',bodyAche:'💪',
+  nausea:'🤢',diarrhea:'🚽',chestPain:'🫀',breathShort:'🌬️',dizziness:'💫',rash:'🔴',jointPain:'🦴',
+  abdominalPain:'⚡',runnyNose:'🤧',lossAppetite:'🍽️',frequentUrination:'🚻',anxietyMood:'😔',
+  insomnia:'🌙',burningUrination:'🔥'};
+
+const QUESTION_IDS = ['q_duration','q_worsening','q_highFever','q_contact','q_breath','q_rashSpread',
+  'q_vomit','q_chestPressure','q_weightLoss','q_chronic','q_travel','q_lightSound','q_burning',
+  'q_stress','q_seasonal','q_painScale','q_appetite','q_recurring'];
+
+// condition -> {symptoms:{id:weight}, questions:[ids], specialty:key, advice:key}
+const CONDITIONS = {
+  commonCold:{symptoms:{cough:2,soreThroat:2,runnyNose:2,fever:1,fatigue:1,bodyAche:1},
+    questions:['q_duration','q_worsening','q_highFever','q_contact'],specialty:'generalPhysician'},
+  migraine:{symptoms:{headache:3,dizziness:1,nausea:1,fatigue:1},
+    questions:['q_lightSound','q_painScale','q_recurring','q_stress'],specialty:'neurologist'},
+  gastro:{symptoms:{nausea:2,diarrhea:2,abdominalPain:2,lossAppetite:1,fatigue:1},
+    questions:['q_vomit','q_duration','q_appetite','q_contact'],specialty:'gastroenterologist'},
+  allergicRhinitis:{symptoms:{runnyNose:2,cough:1,soreThroat:1,fatigue:1},
+    questions:['q_seasonal','q_rashSpread','q_duration','q_recurring'],specialty:'entAllergist'},
+  uti:{symptoms:{burningUrination:3,frequentUrination:3,abdominalPain:1,fever:1},
+    questions:['q_burning','q_highFever','q_duration','q_recurring'],specialty:'urologist'},
+  dengue:{symptoms:{fever:2,headache:1,jointPain:2,rash:1,fatigue:1,nausea:1},
+    questions:['q_highFever','q_rashSpread','q_travel','q_painScale'],specialty:'infectiousDisease'},
+  anxietyCond:{symptoms:{anxietyMood:3,insomnia:2,fatigue:1,dizziness:1,headache:1},
+    questions:['q_stress','q_recurring','q_appetite','q_worsening'],specialty:'psychiatrist'},
+  asthma:{symptoms:{breathShort:3,cough:2,chestPain:1,fatigue:1},
+    questions:['q_breath','q_chronic','q_worsening','q_seasonal'],specialty:'pulmonologist'},
+  skinAllergy:{symptoms:{rash:3,fatigue:1},
+    questions:['q_rashSpread','q_seasonal','q_duration','q_recurring'],specialty:'dermatologist'},
+  hypertensionRisk:{symptoms:{headache:1,dizziness:2,chestPain:2,fatigue:1},
+    questions:['q_chestPressure','q_chronic','q_worsening','q_weightLoss'],specialty:'cardiologist'}
+};
+const CONDITION_IDS = Object.keys(CONDITIONS);
+const EMERGENCY_COMBOS = [['chestPain','breathShort'],['chestPain','dizziness'],['breathShort','dizziness']];
+
+/* ============================= TRANSLATIONS ============================= */
+const T = {
+en:{brand_tag:"Hybrid Quantum-Inspired Screening",hero_title:"How are you feeling right now?",
+  hero_sub:"Answer a few quick questions and get an instant, informational health insight — plus who to see next.",
+  start_btn:"Start symptom check",mood_good:"Good",mood_okay:"Okay",mood_unwell:"Unwell",mood_veryunwell:"Very unwell",
+  step_feeling:"Feeling",step_symptoms:"Symptoms",step_questions:"Questions",step_results:"Results",step_care:"Find care",
+  symptoms_title:"Select all symptoms you are currently experiencing",symptoms_sub:"Choose everything that applies — you can pick more than one.",
+  next_btn:"Continue",back_btn:"Back",questions_title:"A few quick yes or no questions",question_of:"Question {n} of {total}",
+  yes_btn:"Yes",no_btn:"No",results_title:"Here's what your answers suggest",results_sub:"These are informational estimates, not a medical diagnosis.",
+  match_label:"Likelihood match",advice_label:"What to do now",specialist_label:"Doctor to see",
+  find_doctors_btn:"Find nearby doctors",restart_btn:"Start over",
+  emergency_title:"Seek immediate medical care",
+  emergency_body:"Some of the symptoms you selected can indicate a medical emergency. Please contact your local emergency number or go to the nearest emergency room right away.",
+  no_symptoms_note:"Select at least one symptom to continue.",
+  reminder_title:"Set a health reminder",reminder_label:"Reminder note",reminder_time:"Date & time",
+  reminder_save:"Save reminder",reminder_list_title:"Your reminders",reminder_empty:"No reminders yet.",
+  reminder_delete:"Remove",reminder_note_placeholder:"e.g. Take medicine, follow-up appointment",
+  notif_hint:"Reminders trigger only while this page stays open. For anything critical, also set a reminder on your phone.",
+  disclaimer_short:"Not a medical diagnosis. Always consult a licensed doctor. In an emergency, call your local emergency number.",
+  footer_note:"VitalQ is an informational screening demo using a transparent, rule-based scoring model — not a certified medical device.",
+  low_confidence:"Your answers didn't strongly match a specific condition. If symptoms persist or worsen, please see a general physician.",
+  sym_fever:"Fever",sym_cough:"Cough",sym_headache:"Headache",sym_fatigue:"Fatigue",sym_soreThroat:"Sore throat",
+  sym_bodyAche:"Body ache",sym_nausea:"Nausea",sym_diarrhea:"Diarrhea",sym_chestPain:"Chest pain",
+  sym_breathShort:"Shortness of breath",sym_dizziness:"Dizziness",sym_rash:"Skin rash",sym_jointPain:"Joint pain",
+  sym_abdominalPain:"Abdominal pain",sym_runnyNose:"Runny nose",sym_lossAppetite:"Loss of appetite",
+  sym_frequentUrination:"Frequent urination",sym_anxietyMood:"Anxious / low mood",sym_insomnia:"Trouble sleeping",
+  sym_burningUrination:"Burning urination",
+  q_duration:"Has this been going on for more than 3 days?",q_worsening:"Is it getting worse instead of better?",
+  q_highFever:"Is your body temperature above 100.4°F (38°C)?",q_contact:"Have you been near someone who was recently sick?",
+  q_breath:"Do you have noticeable difficulty breathing?",q_rashSpread:"Is the rash spreading or itchy?",
+  q_vomit:"Are you unable to keep fluids down?",q_chestPressure:"Do you feel pressure or tightness in your chest?",
+  q_weightLoss:"Have you lost weight without trying?",q_chronic:"Do you have a chronic condition like diabetes, asthma, or heart disease?",
+  q_travel:"Have you traveled recently or spent time in a mosquito-prone area?",q_lightSound:"Does light or sound make it feel worse?",
+  q_burning:"Is there a burning feeling when you urinate?",q_stress:"Have you been under unusual stress or poor sleep lately?",
+  q_seasonal:"Does this mostly happen in certain seasons or around dust or pollen?",q_painScale:"Would you rate the discomfort as severe (7 or higher out of 10)?",
+  q_appetite:"Have you lost your appetite?",q_recurring:"Has this happened to you before in a similar way?",
+  cond_commonCold:"Common Cold / Flu",cond_migraine:"Migraine / Tension Headache",cond_gastro:"Gastroenteritis (Stomach Flu)",
+  cond_allergicRhinitis:"Seasonal Allergic Rhinitis",cond_uti:"Urinary Tract Infection",cond_dengue:"Dengue / Viral Fever",
+  cond_anxietyCond:"Anxiety / Stress-related symptoms",cond_asthma:"Asthma / Bronchitis",cond_skinAllergy:"Skin Allergy / Dermatitis",
+  cond_hypertensionRisk:"Possible Blood Pressure / Cardiac Strain",
+  spec_generalPhysician:"General Physician",spec_neurologist:"Neurologist",spec_gastroenterologist:"Gastroenterologist",
+  spec_entAllergist:"ENT / Allergist",spec_urologist:"Urologist",spec_infectiousDisease:"General Physician / Infectious Disease Specialist",
+  spec_psychiatrist:"Psychiatrist / Psychologist",spec_pulmonologist:"Pulmonologist",spec_dermatologist:"Dermatologist",
+  spec_cardiologist:"Cardiologist",
+  adv_commonCold:"Rest, stay hydrated, and monitor your temperature. See a doctor if fever lasts more than 3 days.",
+  adv_migraine:"Rest in a dark, quiet room and stay hydrated. See a neurologist if headaches are frequent or severe.",
+  adv_gastro:"Sip fluids with electrolytes and eat bland food. Seek care urgently if you can't keep fluids down.",
+  adv_allergicRhinitis:"Avoid known triggers and consider an antihistamine. See an allergist if symptoms are persistent.",
+  adv_uti:"Drink plenty of water and avoid delaying care. UTIs typically need prescription antibiotics.",
+  adv_dengue:"Rest, hydrate, and avoid aspirin/ibuprofen. Seek medical care promptly for fever with rash or joint pain.",
+  adv_anxietyCond:"Try grounding techniques and reach out to someone you trust. A mental health professional can help.",
+  adv_asthma:"Avoid triggers and keep any prescribed inhaler nearby. Seek urgent care if breathing is difficult.",
+  adv_skinAllergy:"Avoid scratching and known irritants; a mild antihistamine may help. See a dermatologist if it spreads.",
+  adv_hypertensionRisk:"Avoid exertion and monitor symptoms closely. Chest pain or pressure warrants prompt medical evaluation."
+},
+es:{brand_tag:"Detección híbrida inspirada en la cuántica",hero_title:"¿Cómo te sientes ahora mismo?",
+  hero_sub:"Responde unas preguntas rápidas y obtén al instante una idea informativa sobre tu salud, además de a quién consultar.",
+  start_btn:"Iniciar revisión de síntomas",mood_good:"Bien",mood_okay:"Regular",mood_unwell:"Mal",mood_veryunwell:"Muy mal",
+  step_feeling:"Sensación",step_symptoms:"Síntomas",step_questions:"Preguntas",step_results:"Resultados",step_care:"Buscar médico",
+  symptoms_title:"Selecciona todos los síntomas que tienes en este momento",symptoms_sub:"Elige todo lo que corresponda — puedes marcar varios.",
+  next_btn:"Continuar",back_btn:"Atrás",questions_title:"Unas preguntas rápidas de sí o no",question_of:"Pregunta {n} de {total}",
+  yes_btn:"Sí",no_btn:"No",results_title:"Esto es lo que sugieren tus respuestas",results_sub:"Son estimaciones informativas, no un diagnóstico médico.",
+  match_label:"Coincidencia probable",advice_label:"Qué hacer ahora",specialist_label:"Médico a consultar",
+  find_doctors_btn:"Buscar médicos cercanos",restart_btn:"Empezar de nuevo",
+  emergency_title:"Busca atención médica inmediata",
+  emergency_body:"Algunos de los síntomas seleccionados pueden indicar una emergencia médica. Contacta a tu número de emergencia local o acude a urgencias de inmediato.",
+  no_symptoms_note:"Selecciona al menos un síntoma para continuar.",
+  reminder_title:"Configura un recordatorio de salud",reminder_label:"Nota del recordatorio",reminder_time:"Fecha y hora",
+  reminder_save:"Guardar recordatorio",reminder_list_title:"Tus recordatorios",reminder_empty:"Aún no hay recordatorios.",
+  reminder_delete:"Eliminar",reminder_note_placeholder:"p. ej. Tomar medicamento, cita de seguimiento",
+  notif_hint:"Los recordatorios solo se activan mientras esta página esté abierta. Para algo importante, agrégalo también en tu teléfono.",
+  disclaimer_short:"No es un diagnóstico médico. Consulta siempre a un médico. En una emergencia, llama a tu número de emergencia local.",
+  footer_note:"VitalQ es una demo informativa de detección con un modelo de puntuación transparente basado en reglas, no un dispositivo médico certificado.",
+  low_confidence:"Tus respuestas no coincidieron claramente con una condición específica. Si los síntomas persisten o empeoran, consulta a un médico general.",
+  sym_fever:"Fiebre",sym_cough:"Tos",sym_headache:"Dolor de cabeza",sym_fatigue:"Fatiga",sym_soreThroat:"Dolor de garganta",
+  sym_bodyAche:"Dolor corporal",sym_nausea:"Náuseas",sym_diarrhea:"Diarrea",sym_chestPain:"Dolor en el pecho",
+  sym_breathShort:"Dificultad para respirar",sym_dizziness:"Mareo",sym_rash:"Erupción cutánea",sym_jointPain:"Dolor articular",
+  sym_abdominalPain:"Dolor abdominal",sym_runnyNose:"Nariz que moquea",sym_lossAppetite:"Pérdida de apetito",
+  sym_frequentUrination:"Micción frecuente",sym_anxietyMood:"Ansiedad / ánimo bajo",sym_insomnia:"Problemas para dormir",
+  sym_burningUrination:"Ardor al orinar",
+  q_duration:"¿Esto ha durado más de 3 días?",q_worsening:"¿Está empeorando en lugar de mejorar?",
+  q_highFever:"¿Tu temperatura corporal supera los 38 °C (100.4 °F)?",q_contact:"¿Has estado cerca de alguien que estuvo enfermo recientemente?",
+  q_breath:"¿Tienes dificultad notable para respirar?",q_rashSpread:"¿La erupción se está extendiendo o pica?",
+  q_vomit:"¿No puedes retener líquidos?",q_chestPressure:"¿Sientes presión u opresión en el pecho?",
+  q_weightLoss:"¿Has perdido peso sin proponértelo?",q_chronic:"¿Tienes una condición crónica como diabetes, asma o enfermedad cardíaca?",
+  q_travel:"¿Has viajado recientemente o estado en una zona con mosquitos?",q_lightSound:"¿La luz o el sonido empeoran la sensación?",
+  q_burning:"¿Sientes ardor al orinar?",q_stress:"¿Has tenido estrés inusual o dormido mal últimamente?",
+  q_seasonal:"¿Esto ocurre principalmente en ciertas temporadas o cerca de polvo o polen?",q_painScale:"¿Calificarías la molestia como severa (7 o más de 10)?",
+  q_appetite:"¿Has perdido el apetito?",q_recurring:"¿Esto te ha pasado antes de forma similar?",
+  cond_commonCold:"Resfriado común / Gripe",cond_migraine:"Migraña / Cefalea tensional",cond_gastro:"Gastroenteritis",
+  cond_allergicRhinitis:"Rinitis alérgica estacional",cond_uti:"Infección urinaria",cond_dengue:"Dengue / Fiebre viral",
+  cond_anxietyCond:"Ansiedad / síntomas relacionados con el estrés",cond_asthma:"Asma / Bronquitis",cond_skinAllergy:"Alergia cutánea / Dermatitis",
+  cond_hypertensionRisk:"Posible tensión arterial / esfuerzo cardíaco",
+  spec_generalPhysician:"Médico general",spec_neurologist:"Neurólogo",spec_gastroenterologist:"Gastroenterólogo",
+  spec_entAllergist:"Otorrinolaringólogo / Alergólogo",spec_urologist:"Urólogo",spec_infectiousDisease:"Médico general / Especialista en enfermedades infecciosas",
+  spec_psychiatrist:"Psiquiatra / Psicólogo",spec_pulmonologist:"Neumólogo",spec_dermatologist:"Dermatólogo",
+  spec_cardiologist:"Cardiólogo",
+  adv_commonCold:"Descansa, mantente hidratado y controla tu temperatura. Consulta a un médico si la fiebre dura más de 3 días.",
+  adv_migraine:"Descansa en un lugar oscuro y silencioso, e hidrátate. Consulta a un neurólogo si los dolores son frecuentes o intensos.",
+  adv_gastro:"Toma líquidos con electrolitos y come alimentos suaves. Busca atención urgente si no puedes retener líquidos.",
+  adv_allergicRhinitis:"Evita los desencadenantes conocidos y considera un antihistamínico. Consulta a un alergólogo si persiste.",
+  adv_uti:"Bebe abundante agua y no retrases la atención. Las infecciones urinarias suelen requerir antibióticos recetados.",
+  adv_dengue:"Descansa, hidrátate y evita la aspirina o el ibuprofeno. Busca atención médica pronto si hay fiebre con erupción o dolor articular.",
+  adv_anxietyCond:"Prueba técnicas de relajación y habla con alguien de confianza. Un profesional de salud mental puede ayudar.",
+  adv_asthma:"Evita los desencadenantes y ten a mano tu inhalador recetado. Busca atención urgente si respirar es difícil.",
+  adv_skinAllergy:"Evita rascarte y los irritantes conocidos; un antihistamínico suave puede ayudar. Consulta a un dermatólogo si se extiende.",
+  adv_hypertensionRisk:"Evita esfuerzos y vigila los síntomas de cerca. El dolor u opresión en el pecho requiere evaluación médica pronta."
+},
+fr:{brand_tag:"Dépistage hybride inspiré du quantique",hero_title:"Comment vous sentez-vous en ce moment ?",
+  hero_sub:"Répondez à quelques questions rapides et obtenez un aperçu de santé informatif instantané — ainsi que le spécialiste à consulter.",
+  start_btn:"Démarrer le contrôle des symptômes",mood_good:"Bien",mood_okay:"Ça va",mood_unwell:"Mal",mood_veryunwell:"Très mal",
+  step_feeling:"Ressenti",step_symptoms:"Symptômes",step_questions:"Questions",step_results:"Résultats",step_care:"Trouver un médecin",
+  symptoms_title:"Sélectionnez tous les symptômes que vous ressentez actuellement",symptoms_sub:"Choisissez tout ce qui s'applique — plusieurs choix possibles.",
+  next_btn:"Continuer",back_btn:"Retour",questions_title:"Quelques questions rapides oui/non",question_of:"Question {n} sur {total}",
+  yes_btn:"Oui",no_btn:"Non",results_title:"Voici ce que suggèrent vos réponses",results_sub:"Ce sont des estimations informatives, pas un diagnostic médical.",
+  match_label:"Correspondance probable",advice_label:"Que faire maintenant",specialist_label:"Médecin à consulter",
+  find_doctors_btn:"Trouver des médecins à proximité",restart_btn:"Recommencer",
+  emergency_title:"Consultez immédiatement un médecin",
+  emergency_body:"Certains symptômes sélectionnés peuvent indiquer une urgence médicale. Contactez votre numéro d'urgence local ou rendez-vous aux urgences sans attendre.",
+  no_symptoms_note:"Sélectionnez au moins un symptôme pour continuer.",
+  reminder_title:"Définir un rappel de santé",reminder_label:"Note du rappel",reminder_time:"Date et heure",
+  reminder_save:"Enregistrer le rappel",reminder_list_title:"Vos rappels",reminder_empty:"Aucun rappel pour le moment.",
+  reminder_delete:"Supprimer",reminder_note_placeholder:"ex. Prendre le médicament, rendez-vous de suivi",
+  notif_hint:"Les rappels ne se déclenchent que si cette page reste ouverte. Pour l'important, ajoutez aussi un rappel sur votre téléphone.",
+  disclaimer_short:"Ceci n'est pas un diagnostic médical. Consultez toujours un médecin. En cas d'urgence, appelez votre numéro d'urgence local.",
+  footer_note:"VitalQ est une démo de dépistage informatif utilisant un modèle de score transparent basé sur des règles — pas un dispositif médical certifié.",
+  low_confidence:"Vos réponses ne correspondent pas clairement à une condition précise. Si les symptômes persistent ou s'aggravent, consultez un médecin généraliste.",
+  sym_fever:"Fièvre",sym_cough:"Toux",sym_headache:"Mal de tête",sym_fatigue:"Fatigue",sym_soreThroat:"Mal de gorge",
+  sym_bodyAche:"Courbatures",sym_nausea:"Nausées",sym_diarrhea:"Diarrhée",sym_chestPain:"Douleur thoracique",
+  sym_breathShort:"Essoufflement",sym_dizziness:"Vertiges",sym_rash:"Éruption cutanée",sym_jointPain:"Douleurs articulaires",
+  sym_abdominalPain:"Douleur abdominale",sym_runnyNose:"Nez qui coule",sym_lossAppetite:"Perte d'appétit",
+  sym_frequentUrination:"Envies fréquentes d'uriner",sym_anxietyMood:"Anxiété / moral bas",sym_insomnia:"Troubles du sommeil",
+  sym_burningUrination:"Brûlure en urinant",
+  q_duration:"Cela dure-t-il depuis plus de 3 jours ?",q_worsening:"Est-ce que ça empire au lieu de s'améliorer ?",
+  q_highFever:"Votre température dépasse-t-elle 38 °C (100,4 °F) ?",q_contact:"Avez-vous été près de quelqu'un récemment malade ?",
+  q_breath:"Avez-vous une gêne respiratoire notable ?",q_rashSpread:"L'éruption s'étend-elle ou démange-t-elle ?",
+  q_vomit:"Êtes-vous incapable de garder les liquides ?",q_chestPressure:"Ressentez-vous une pression ou une oppression thoracique ?",
+  q_weightLoss:"Avez-vous perdu du poids sans le vouloir ?",q_chronic:"Avez-vous une maladie chronique comme le diabète, l'asthme ou une maladie cardiaque ?",
+  q_travel:"Avez-vous voyagé récemment ou séjourné dans une zone à moustiques ?",q_lightSound:"La lumière ou le bruit aggravent-ils la sensation ?",
+  q_burning:"Ressentez-vous une brûlure en urinant ?",q_stress:"Avez-vous eu un stress inhabituel ou mal dormi récemment ?",
+  q_seasonal:"Cela survient-il surtout à certaines saisons ou près de poussière/pollen ?",q_painScale:"Évalueriez-vous la gêne comme sévère (7 ou plus sur 10) ?",
+  q_appetite:"Avez-vous perdu l'appétit ?",q_recurring:"Cela vous est-il déjà arrivé de façon similaire ?",
+  cond_commonCold:"Rhume / Grippe",cond_migraine:"Migraine / Céphalée de tension",cond_gastro:"Gastro-entérite",
+  cond_allergicRhinitis:"Rhinite allergique saisonnière",cond_uti:"Infection urinaire",cond_dengue:"Dengue / Fièvre virale",
+  cond_anxietyCond:"Anxiété / symptômes liés au stress",cond_asthma:"Asthme / Bronchite",cond_skinAllergy:"Allergie cutanée / Dermatite",
+  cond_hypertensionRisk:"Possible tension artérielle / effort cardiaque",
+  spec_generalPhysician:"Médecin généraliste",spec_neurologist:"Neurologue",spec_gastroenterologist:"Gastro-entérologue",
+  spec_entAllergist:"ORL / Allergologue",spec_urologist:"Urologue",spec_infectiousDisease:"Médecin généraliste / Infectiologue",
+  spec_psychiatrist:"Psychiatre / Psychologue",spec_pulmonologist:"Pneumologue",spec_dermatologist:"Dermatologue",
+  spec_cardiologist:"Cardiologue",
+  adv_commonCold:"Reposez-vous, hydratez-vous et surveillez votre température. Consultez si la fièvre dure plus de 3 jours.",
+  adv_migraine:"Reposez-vous dans le calme et l'obscurité, hydratez-vous. Consultez un neurologue si les maux de tête sont fréquents ou intenses.",
+  adv_gastro:"Buvez des liquides avec électrolytes et mangez léger. Consultez en urgence si vous ne gardez rien.",
+  adv_allergicRhinitis:"Évitez les déclencheurs connus et envisagez un antihistaminique. Consultez un allergologue si cela persiste.",
+  adv_uti:"Buvez beaucoup d'eau et ne tardez pas à consulter. Les infections urinaires nécessitent souvent des antibiotiques.",
+  adv_dengue:"Reposez-vous, hydratez-vous et évitez aspirine/ibuprofène. Consultez rapidement en cas de fièvre avec éruption ou douleurs articulaires.",
+  adv_anxietyCond:"Essayez des techniques d'ancrage et parlez à quelqu'un de confiance. Un professionnel de santé mentale peut aider.",
+  adv_asthma:"Évitez les déclencheurs et gardez votre inhalateur à portée. Consultez en urgence si respirer est difficile.",
+  adv_skinAllergy:"Évitez de gratter et les irritants connus ; un antihistaminique léger peut aider. Consultez un dermatologue si ça s'étend.",
+  adv_hypertensionRisk:"Évitez les efforts et surveillez de près. Une douleur ou pression thoracique nécessite une évaluation médicale rapide."
+},
+de:{brand_tag:"Hybrides, quanteninspiriertes Screening",hero_title:"Wie fühlst du dich gerade?",
+  hero_sub:"Beantworte ein paar kurze Fragen und erhalte sofort einen informativen Gesundheitshinweis – und wen du als Nächstes aufsuchen solltest.",
+  start_btn:"Symptomprüfung starten",mood_good:"Gut",mood_okay:"Okay",mood_unwell:"Unwohl",mood_veryunwell:"Sehr unwohl",
+  step_feeling:"Gefühl",step_symptoms:"Symptome",step_questions:"Fragen",step_results:"Ergebnisse",step_care:"Arzt finden",
+  symptoms_title:"Wähle alle Symptome aus, die du derzeit hast",symptoms_sub:"Wähle alles Zutreffende — Mehrfachauswahl möglich.",
+  next_btn:"Weiter",back_btn:"Zurück",questions_title:"Ein paar kurze Ja/Nein-Fragen",question_of:"Frage {n} von {total}",
+  yes_btn:"Ja",no_btn:"Nein",results_title:"Das legen deine Antworten nahe",results_sub:"Dies sind informative Schätzungen, keine medizinische Diagnose.",
+  match_label:"Wahrscheinliche Übereinstimmung",advice_label:"Was jetzt zu tun ist",specialist_label:"Empfohlener Arzt",
+  find_doctors_btn:"Ärzte in der Nähe finden",restart_btn:"Neu starten",
+  emergency_title:"Sofort ärztliche Hilfe suchen",
+  emergency_body:"Einige der ausgewählten Symptome können auf einen medizinischen Notfall hindeuten. Bitte kontaktiere umgehend deinen Notruf oder suche die nächste Notaufnahme auf.",
+  no_symptoms_note:"Wähle mindestens ein Symptom aus, um fortzufahren.",
+  reminder_title:"Gesundheitserinnerung einrichten",reminder_label:"Erinnerungsnotiz",reminder_time:"Datum & Uhrzeit",
+  reminder_save:"Erinnerung speichern",reminder_list_title:"Deine Erinnerungen",reminder_empty:"Noch keine Erinnerungen.",
+  reminder_delete:"Entfernen",reminder_note_placeholder:"z. B. Medikament einnehmen, Nachuntersuchung",
+  notif_hint:"Erinnerungen werden nur ausgelöst, solange diese Seite geöffnet bleibt. Für Wichtiges zusätzlich eine Erinnerung auf dem Handy einrichten.",
+  disclaimer_short:"Keine medizinische Diagnose. Konsultiere immer einen Arzt. Im Notfall rufe deinen lokalen Notruf an.",
+  footer_note:"VitalQ ist eine informative Screening-Demo mit einem transparenten, regelbasierten Bewertungsmodell — kein zertifiziertes Medizinprodukt.",
+  low_confidence:"Deine Antworten passten nicht eindeutig zu einer bestimmten Erkrankung. Wenn Symptome anhalten oder sich verschlimmern, wende dich an einen Allgemeinarzt.",
+  sym_fever:"Fieber",sym_cough:"Husten",sym_headache:"Kopfschmerzen",sym_fatigue:"Erschöpfung",sym_soreThroat:"Halsschmerzen",
+  sym_bodyAche:"Gliederschmerzen",sym_nausea:"Übelkeit",sym_diarrhea:"Durchfall",sym_chestPain:"Brustschmerzen",
+  sym_breathShort:"Kurzatmigkeit",sym_dizziness:"Schwindel",sym_rash:"Hautausschlag",sym_jointPain:"Gelenkschmerzen",
+  sym_abdominalPain:"Bauchschmerzen",sym_runnyNose:"Laufende Nase",sym_lossAppetite:"Appetitlosigkeit",
+  sym_frequentUrination:"Häufiges Wasserlassen",sym_anxietyMood:"Ängstlich / niedergeschlagen",sym_insomnia:"Schlafprobleme",
+  sym_burningUrination:"Brennen beim Wasserlassen",
+  q_duration:"Besteht das schon länger als 3 Tage?",q_worsening:"Wird es schlimmer statt besser?",
+  q_highFever:"Liegt deine Körpertemperatur über 38 °C (100,4 °F)?",q_contact:"Warst du in der Nähe von jemandem, der kürzlich krank war?",
+  q_breath:"Hast du spürbare Atembeschwerden?",q_rashSpread:"Breitet sich der Ausschlag aus oder juckt er?",
+  q_vomit:"Kannst du keine Flüssigkeit bei dir behalten?",q_chestPressure:"Spürst du Druck oder Enge in der Brust?",
+  q_weightLoss:"Hast du ungewollt Gewicht verloren?",q_chronic:"Hast du eine chronische Erkrankung wie Diabetes, Asthma oder eine Herzkrankheit?",
+  q_travel:"Bist du kürzlich gereist oder in einem mückenreichen Gebiet gewesen?",q_lightSound:"Verschlimmern Licht oder Geräusche das Gefühl?",
+  q_burning:"Spürst du ein Brennen beim Wasserlassen?",q_stress:"Hattest du zuletzt ungewöhnlichen Stress oder schlechten Schlaf?",
+  q_seasonal:"Tritt das vor allem in bestimmten Jahreszeiten oder bei Staub/Pollen auf?",q_painScale:"Würdest du die Beschwerden als stark einstufen (7 oder höher von 10)?",
+  q_appetite:"Hast du den Appetit verloren?",q_recurring:"Ist dir das schon einmal ähnlich passiert?",
+  cond_commonCold:"Erkältung / Grippe",cond_migraine:"Migräne / Spannungskopfschmerz",cond_gastro:"Magen-Darm-Infekt",
+  cond_allergicRhinitis:"Saisonale allergische Rhinitis",cond_uti:"Harnwegsinfektion",cond_dengue:"Dengue / Virusfieber",
+  cond_anxietyCond:"Angst / stressbedingte Symptome",cond_asthma:"Asthma / Bronchitis",cond_skinAllergy:"Hautallergie / Dermatitis",
+  cond_hypertensionRisk:"Möglicher Bluthochdruck / Herzbelastung",
+  spec_generalPhysician:"Allgemeinarzt",spec_neurologist:"Neurologe",spec_gastroenterologist:"Gastroenterologe",
+  spec_entAllergist:"HNO-Arzt / Allergologe",spec_urologist:"Urologe",spec_infectiousDisease:"Allgemeinarzt / Infektiologe",
+  spec_psychiatrist:"Psychiater / Psychologe",spec_pulmonologist:"Pneumologe",spec_dermatologist:"Dermatologe",
+  spec_cardiologist:"Kardiologe",
+  adv_commonCold:"Ruhe dich aus, trinke viel und beobachte deine Temperatur. Arzt aufsuchen, wenn Fieber länger als 3 Tage anhält.",
+  adv_migraine:"Ruhe dich in einem dunklen, ruhigen Raum aus und trinke ausreichend. Bei häufigen oder starken Kopfschmerzen zum Neurologen.",
+  adv_gastro:"Trinke elektrolythaltige Flüssigkeit und iss milde Kost. Bei anhaltendem Erbrechen sofort ärztliche Hilfe suchen.",
+  adv_allergicRhinitis:"Vermeide bekannte Auslöser und erwäge ein Antihistaminikum. Bei anhaltenden Beschwerden zum Allergologen.",
+  adv_uti:"Trinke viel Wasser und zögere die Behandlung nicht hinaus. Harnwegsinfektionen brauchen meist ein Antibiotikum.",
+  adv_dengue:"Ruhe dich aus, trinke ausreichend und vermeide Aspirin/Ibuprofen. Bei Fieber mit Ausschlag oder Gelenkschmerzen rasch einen Arzt aufsuchen.",
+  adv_anxietyCond:"Versuche Erdungstechniken und sprich mit jemandem, dem du vertraust. Eine Fachperson für psychische Gesundheit kann helfen.",
+  adv_asthma:"Vermeide Auslöser und halte ein verordnetes Inhalationsgerät bereit. Bei Atemnot sofort ärztliche Hilfe suchen.",
+  adv_skinAllergy:"Nicht kratzen, bekannte Reizstoffe meiden; ein mildes Antihistaminikum kann helfen. Bei Ausbreitung zum Dermatologen.",
+  adv_hypertensionRisk:"Anstrengung vermeiden und Symptome genau beobachten. Brustschmerzen oder -druck erfordern zügige ärztliche Abklärung."
+},
+hi:{brand_tag:"हाइब्रिड क्वांटम-प्रेरित जांच",hero_title:"अभी आप कैसा महसूस कर रहे हैं?",
+  hero_sub:"कुछ त्वरित सवालों के जवाब दें और तुरंत एक जानकारीपूर्ण स्वास्थ्य संकेत पाएं — साथ ही यह भी जानें कि आगे किस डॉक्टर से मिलें।",
+  start_btn:"लक्षण जांच शुरू करें",mood_good:"अच्छा",mood_okay:"ठीक-ठाक",mood_unwell:"अस्वस्थ",mood_veryunwell:"बहुत अस्वस्थ",
+  step_feeling:"अनुभूति",step_symptoms:"लक्षण",step_questions:"प्रश्न",step_results:"परिणाम",step_care:"डॉक्टर खोजें",
+  symptoms_title:"वे सभी लक्षण चुनें जो आप अभी महसूस कर रहे हैं",symptoms_sub:"जो भी लागू हो चुनें — एक से अधिक चुन सकते हैं।",
+  next_btn:"जारी रखें",back_btn:"वापस",questions_title:"कुछ त्वरित हां/नहीं प्रश्न",question_of:"प्रश्न {n} / {total}",
+  yes_btn:"हां",no_btn:"नहीं",results_title:"आपके उत्तर यह सुझाते हैं",results_sub:"ये केवल जानकारीपूर्ण अनुमान हैं, चिकित्सा निदान नहीं।",
+  match_label:"संभावित मिलान",advice_label:"अभी क्या करें",specialist_label:"किस डॉक्टर से मिलें",
+  find_doctors_btn:"नज़दीकी डॉक्टर खोजें",restart_btn:"फिर से शुरू करें",
+  emergency_title:"तुरंत चिकित्सा सहायता लें",
+  emergency_body:"आपके चुने गए कुछ लक्षण चिकित्सा आपातकाल का संकेत हो सकते हैं। कृपया अपने स्थानीय आपातकालीन नंबर पर संपर्क करें या तुरंत निकटतम अस्पताल जाएं।",
+  no_symptoms_note:"जारी रखने के लिए कम से कम एक लक्षण चुनें।",
+  reminder_title:"स्वास्थ्य रिमाइंडर सेट करें",reminder_label:"रिमाइंडर नोट",reminder_time:"तारीख और समय",
+  reminder_save:"रिमाइंडर सेव करें",reminder_list_title:"आपके रिमाइंडर",reminder_empty:"अभी कोई रिमाइंडर नहीं है।",
+  reminder_delete:"हटाएं",reminder_note_placeholder:"जैसे दवा लेना, फॉलो-अप अपॉइंटमेंट",
+  notif_hint:"रिमाइंडर तभी बजेगा जब यह पेज खुला रहेगा। ज़रूरी बातों के लिए फोन में भी रिमाइंडर सेट करें।",
+  disclaimer_short:"यह चिकित्सा निदान नहीं है। हमेशा लाइसेंस प्राप्त डॉक्टर से सलाह लें। आपातकाल में स्थानीय आपातकालीन नंबर पर कॉल करें।",
+  footer_note:"VitalQ एक जानकारीपूर्ण स्क्रीनिंग डेमो है जो पारदर्शी, नियम-आधारित स्कोरिंग मॉडल का उपयोग करता है — यह प्रमाणित चिकित्सा उपकरण नहीं है।",
+  low_confidence:"आपके उत्तर किसी विशेष स्थिति से स्पष्ट रूप से मेल नहीं खाए। यदि लक्षण बने रहें या बिगड़ें, तो कृपया सामान्य चिकित्सक से मिलें।",
+  sym_fever:"बुखार",sym_cough:"खांसी",sym_headache:"सिरदर्द",sym_fatigue:"थकान",sym_soreThroat:"गले में खराश",
+  sym_bodyAche:"शरीर में दर्द",sym_nausea:"जी मिचलाना",sym_diarrhea:"दस्त",sym_chestPain:"सीने में दर्द",
+  sym_breathShort:"सांस लेने में तकलीफ",sym_dizziness:"चक्कर आना",sym_rash:"त्वचा पर चकत्ते",sym_jointPain:"जोड़ों में दर्द",
+  sym_abdominalPain:"पेट दर्द",sym_runnyNose:"नाक बहना",sym_lossAppetite:"भूख न लगना",
+  sym_frequentUrination:"बार-बार पेशाब आना",sym_anxietyMood:"चिंता / उदास मन",sym_insomnia:"नींद न आना",
+  sym_burningUrination:"पेशाब में जलन",
+  q_duration:"क्या यह 3 दिनों से अधिक समय से हो रहा है?",q_worsening:"क्या यह बेहतर होने के बजाय बिगड़ रहा है?",
+  q_highFever:"क्या आपका शरीर का तापमान 38°C (100.4°F) से ऊपर है?",q_contact:"क्या आप हाल ही में किसी बीमार व्यक्ति के संपर्क में आए हैं?",
+  q_breath:"क्या आपको सांस लेने में स्पष्ट तकलीफ है?",q_rashSpread:"क्या चकत्ते फैल रहे हैं या खुजली कर रहे हैं?",
+  q_vomit:"क्या आप तरल पदार्थ पेट में नहीं रख पा रहे?",q_chestPressure:"क्या आपको सीने में दबाव या जकड़न महसूस होती है?",
+  q_weightLoss:"क्या आपका बिना कोशिश किए वजन घटा है?",q_chronic:"क्या आपको डायबिटीज़, अस्थमा या हृदय रोग जैसी कोई पुरानी बीमारी है?",
+  q_travel:"क्या आपने हाल ही में यात्रा की है या मच्छर-प्रवण क्षेत्र में समय बिताया है?",q_lightSound:"क्या रोशनी या आवाज़ से स्थिति और खराब लगती है?",
+  q_burning:"क्या पेशाब करते समय जलन होती है?",q_stress:"क्या हाल ही में आपको असामान्य तनाव या नींद की कमी रही है?",
+  q_seasonal:"क्या यह मुख्यतः कुछ मौसमों में या धूल/पराग के आसपास होता है?",q_painScale:"क्या आप तकलीफ को गंभीर (10 में से 7 या अधिक) मानेंगे?",
+  q_appetite:"क्या आपकी भूख कम हो गई है?",q_recurring:"क्या आपके साथ पहले भी ऐसा हो चुका है?",
+  cond_commonCold:"सामान्य सर्दी / फ्लू",cond_migraine:"माइग्रेन / तनाव सिरदर्द",cond_gastro:"गैस्ट्रोएंटेराइटिस (पेट में संक्रमण)",
+  cond_allergicRhinitis:"मौसमी एलर्जिक राइनाइटिस",cond_uti:"मूत्र मार्ग संक्रमण",cond_dengue:"डेंगू / वायरल बुखार",
+  cond_anxietyCond:"चिंता / तनाव संबंधी लक्षण",cond_asthma:"अस्थमा / ब्रोंकाइटिस",cond_skinAllergy:"त्वचा एलर्जी / डर्मेटाइटिस",
+  cond_hypertensionRisk:"संभावित उच्च रक्तचाप / हृदय पर दबाव",
+  spec_generalPhysician:"सामान्य चिकित्सक",spec_neurologist:"न्यूरोलॉजिस्ट",spec_gastroenterologist:"गैस्ट्रोएंटेरोलॉजिस्ट",
+  spec_entAllergist:"ईएनटी / एलर्जिस्ट",spec_urologist:"यूरोलॉजिस्ट",spec_infectiousDisease:"सामान्य चिकित्सक / संक्रामक रोग विशेषज्ञ",
+  spec_psychiatrist:"मनोचिकित्सक / मनोवैज्ञानिक",spec_pulmonologist:"पल्मोनोलॉजिस्ट",spec_dermatologist:"त्वचा विशेषज्ञ",
+  spec_cardiologist:"हृदय रोग विशेषज्ञ",
+  adv_commonCold:"आराम करें, हाइड्रेटेड रहें और तापमान पर नज़र रखें। यदि बुखार 3 दिन से अधिक रहे तो डॉक्टर से मिलें।",
+  adv_migraine:"अंधेरे, शांत कमरे में आराम करें और हाइड्रेटेड रहें। बार-बार या गंभीर सिरदर्द हो तो न्यूरोलॉजिस्ट से मिलें।",
+  adv_gastro:"इलेक्ट्रोलाइट्स वाले तरल पदार्थ लें और हल्का भोजन करें। यदि तरल पदार्थ रुक न पाएं तो तुरंत डॉक्टर से मिलें।",
+  adv_allergicRhinitis:"ज्ञात कारणों से बचें और एंटीहिस्टामाइन लेने पर विचार करें। लक्षण बने रहें तो एलर्जिस्ट से मिलें।",
+  adv_uti:"खूब पानी पिएं और इलाज में देरी न करें। मूत्र मार्ग संक्रमण में आमतौर पर एंटीबायोटिक की ज़रूरत होती है।",
+  adv_dengue:"आराम करें, हाइड्रेटेड रहें और एस्पिरिन/इबुप्रोफेन से बचें। चकत्ते या जोड़ों के दर्द के साथ बुखार हो तो तुरंत डॉक्टर से मिलें।",
+  adv_anxietyCond:"ग्राउंडिंग तकनीकों को आज़माएं और किसी भरोसेमंद व्यक्ति से बात करें। मानसिक स्वास्थ्य विशेषज्ञ मदद कर सकते हैं।",
+  adv_asthma:"कारणों से बचें और निर्धारित इनहेलर पास रखें। सांस लेने में कठिनाई हो तो तुरंत चिकित्सा सहायता लें।",
+  adv_skinAllergy:"खुजलाने और ज्ञात कारणों से बचें; हल्का एंटीहिस्टामाइन मदद कर सकता है। फैलने पर त्वचा विशेषज्ञ से मिलें।",
+  adv_hypertensionRisk:"अधिक परिश्रम से बचें और लक्षणों पर नज़र रखें। सीने में दर्द या दबाव होने पर तुरंत चिकित्सीय जांच कराएं।"
+},
+bn:{brand_tag:"হাইব্রিড কোয়ান্টাম-অনুপ্রাণিত স্ক্রিনিং",hero_title:"আপনি এখন কেমন অনুভব করছেন?",
+  hero_sub:"কয়েকটি দ্রুত প্রশ্নের উত্তর দিন এবং তাৎক্ষণিক তথ্যমূলক স্বাস্থ্য ধারণা পান — সাথে জানুন পরবর্তীতে কোন ডাক্তারের কাছে যাবেন।",
+  start_btn:"লক্ষণ পরীক্ষা শুরু করুন",mood_good:"ভালো",mood_okay:"মোটামুটি",mood_unwell:"অসুস্থ",mood_veryunwell:"খুব অসুস্থ",
+  step_feeling:"অনুভূতি",step_symptoms:"লক্ষণ",step_questions:"প্রশ্ন",step_results:"ফলাফল",step_care:"ডাক্তার খুঁজুন",
+  symptoms_title:"আপনি বর্তমানে যে সব লক্ষণ অনুভব করছেন তা নির্বাচন করুন",symptoms_sub:"যা প্রযোজ্য সব বেছে নিন — একাধিক নির্বাচন করা যায়।",
+  next_btn:"চালিয়ে যান",back_btn:"পিছনে",questions_title:"কিছু দ্রুত হ্যাঁ/না প্রশ্ন",question_of:"প্রশ্ন {n} এর {total}",
+  yes_btn:"হ্যাঁ",no_btn:"না",results_title:"আপনার উত্তর যা নির্দেশ করে",results_sub:"এগুলো তথ্যমূলক অনুমান মাত্র, চিকিৎসা নির্ণয় নয়।",
+  match_label:"সম্ভাব্য মিল",advice_label:"এখন কী করবেন",specialist_label:"কোন ডাক্তার দেখাবেন",
+  find_doctors_btn:"কাছাকাছি ডাক্তার খুঁজুন",restart_btn:"আবার শুরু করুন",
+  emergency_title:"অবিলম্বে চিকিৎসা সহায়তা নিন",
+  emergency_body:"আপনার নির্বাচিত কিছু লক্ষণ একটি চিকিৎসা জরুরি অবস্থা নির্দেশ করতে পারে। অনুগ্রহ করে আপনার স্থানীয় জরুরি নম্বরে যোগাযোগ করুন বা অবিলম্বে নিকটতম হাসপাতালে যান।",
+  no_symptoms_note:"চালিয়ে যেতে অন্তত একটি লক্ষণ নির্বাচন করুন।",
+  reminder_title:"স্বাস্থ্য রিমাইন্ডার সেট করুন",reminder_label:"রিমাইন্ডার নোট",reminder_time:"তারিখ ও সময়",
+  reminder_save:"রিমাইন্ডার সংরক্ষণ করুন",reminder_list_title:"আপনার রিমাইন্ডার",reminder_empty:"এখনও কোনো রিমাইন্ডার নেই।",
+  reminder_delete:"সরান",reminder_note_placeholder:"যেমন ওষুধ খাওয়া, ফলো-আপ অ্যাপয়েন্টমেন্ট",
+  notif_hint:"এই পেজ খোলা থাকলেই কেবল রিমাইন্ডার বাজবে। গুরুত্বপূর্ণ বিষয়ের জন্য ফোনেও রিমাইন্ডার সেট করুন।",
+  disclaimer_short:"এটি চিকিৎসা নির্ণয় নয়। সবসময় লাইসেন্সপ্রাপ্ত ডাক্তারের পরামর্শ নিন। জরুরি অবস্থায় স্থানীয় জরুরি নম্বরে কল করুন।",
+  footer_note:"VitalQ একটি তথ্যমূলক স্ক্রিনিং ডেমো যা স্বচ্ছ, নিয়ম-ভিত্তিক স্কোরিং মডেল ব্যবহার করে — এটি কোনো প্রত্যয়িত চিকিৎসা যন্ত্র নয়।",
+  low_confidence:"আপনার উত্তরগুলো নির্দিষ্ট কোনো রোগের সাথে স্পষ্টভাবে মেলেনি। লক্ষণ অব্যাহত থাকলে বা বাড়লে সাধারণ চিকিৎসকের কাছে যান।",
+  sym_fever:"জ্বর",sym_cough:"কাশি",sym_headache:"মাথাব্যথা",sym_fatigue:"ক্লান্তি",sym_soreThroat:"গলা ব্যথা",
+  sym_bodyAche:"শরীর ব্যথা",sym_nausea:"বমি বমি ভাব",sym_diarrhea:"ডায়রিয়া",sym_chestPain:"বুকে ব্যথা",
+  sym_breathShort:"শ্বাসকষ্ট",sym_dizziness:"মাথা ঘোরা",sym_rash:"ত্বকে র‍্যাশ",sym_jointPain:"গাঁটে ব্যথা",
+  sym_abdominalPain:"পেটে ব্যথা",sym_runnyNose:"নাক দিয়ে পানি পড়া",sym_lossAppetite:"ক্ষুধামান্দ্য",
+  sym_frequentUrination:"ঘন ঘন প্রস্রাব",sym_anxietyMood:"উদ্বেগ / মন খারাপ",sym_insomnia:"ঘুমের সমস্যা",
+  sym_burningUrination:"প্রস্রাবে জ্বালা",
+  q_duration:"এটি কি ৩ দিনের বেশি সময় ধরে চলছে?",q_worsening:"এটি কি ভালো হওয়ার বদলে খারাপ হচ্ছে?",
+  q_highFever:"আপনার শরীরের তাপমাত্রা কি ১০০.৪°ফা (৩৮°সে) এর বেশি?",q_contact:"আপনি কি সম্প্রতি অসুস্থ কারো কাছাকাছি ছিলেন?",
+  q_breath:"আপনার কি শ্বাস নিতে লক্ষণীয় কষ্ট হচ্ছে?",q_rashSpread:"র‍্যাশ কি ছড়িয়ে পড়ছে বা চুলকাচ্ছে?",
+  q_vomit:"আপনি কি তরল খাবার পেটে রাখতে পারছেন না?",q_chestPressure:"আপনি কি বুকে চাপ বা টান অনুভব করছেন?",
+  q_weightLoss:"আপনার কি চেষ্টা ছাড়াই ওজন কমেছে?",q_chronic:"আপনার কি ডায়াবেটিস, অ্যাজমা বা হৃদরোগের মতো দীর্ঘমেয়াদি সমস্যা আছে?",
+  q_travel:"আপনি কি সম্প্রতি ভ্রমণ করেছেন বা মশা-প্রবণ এলাকায় সময় কাটিয়েছেন?",q_lightSound:"আলো বা শব্দে কি এটি আরও খারাপ লাগে?",
+  q_burning:"প্রস্রাবের সময় কি জ্বালাপোড়া হয়?",q_stress:"আপনি কি সম্প্রতি অস্বাভাবিক চাপ বা ঘুমের অভাবে ভুগছেন?",
+  q_seasonal:"এটি কি মূলত নির্দিষ্ট ঋতুতে বা ধুলো/পরাগরেণুর কাছে হয়?",q_painScale:"আপনি কি অস্বস্তিকে গুরুতর (১০ এর মধ্যে ৭ বা তার বেশি) বলবেন?",
+  q_appetite:"আপনার কি ক্ষুধা কমে গেছে?",q_recurring:"আপনার কি আগেও এমনটা হয়েছে?",
+  cond_commonCold:"সাধারণ সর্দি / ফ্লু",cond_migraine:"মাইগ্রেন / টেনশন হেডেক",cond_gastro:"গ্যাস্ট্রোএন্টেরাইটিস",
+  cond_allergicRhinitis:"মৌসুমি অ্যালার্জিক রাইনাইটিস",cond_uti:"মূত্রনালীর সংক্রমণ",cond_dengue:"ডেঙ্গু / ভাইরাল জ্বর",
+  cond_anxietyCond:"উদ্বেগ / মানসিক চাপজনিত লক্ষণ",cond_asthma:"অ্যাজমা / ব্রঙ্কাইটিস",cond_skinAllergy:"ত্বকের অ্যালার্জি / ডার্মাটাইটিস",
+  cond_hypertensionRisk:"সম্ভাব্য উচ্চ রক্তচাপ / হৃদযন্ত্রের চাপ",
+  spec_generalPhysician:"সাধারণ চিকিৎসক",spec_neurologist:"নিউরোলজিস্ট",spec_gastroenterologist:"গ্যাস্ট্রোএন্টেরোলজিস্ট",
+  spec_entAllergist:"ইএনটি / অ্যালার্জিস্ট",spec_urologist:"ইউরোলজিস্ট",spec_infectiousDisease:"সাধারণ চিকিৎসক / সংক্রামক রোগ বিশেষজ্ঞ",
+  spec_psychiatrist:"মনোরোগ বিশেষজ্ঞ / মনোবিজ্ঞানী",spec_pulmonologist:"পালমোনোলজিস্ট",spec_dermatologist:"চর্মরোগ বিশেষজ্ঞ",
+  spec_cardiologist:"হৃদরোগ বিশেষজ্ঞ",
+  adv_commonCold:"বিশ্রাম নিন, হাইড্রেটেড থাকুন এবং তাপমাত্রা পর্যবেক্ষণ করুন। জ্বর ৩ দিনের বেশি থাকলে ডাক্তার দেখান।",
+  adv_migraine:"অন্ধকার, শান্ত ঘরে বিশ্রাম নিন এবং হাইড্রেটেড থাকুন। মাথাব্যথা ঘন ঘন বা তীব্র হলে নিউরোলজিস্ট দেখান।",
+  adv_gastro:"ইলেকট্রোলাইটযুক্ত তরল পান করুন এবং হালকা খাবার খান। তরল ধরে রাখতে না পারলে জরুরি চিকিৎসা নিন।",
+  adv_allergicRhinitis:"পরিচিত কারণগুলো এড়িয়ে চলুন এবং অ্যান্টিহিস্টামিন বিবেচনা করুন। লক্ষণ থাকলে অ্যালার্জিস্ট দেখান।",
+  adv_uti:"প্রচুর পানি পান করুন এবং চিকিৎসা বিলম্ব করবেন না। মূত্রনালীর সংক্রমণে সাধারণত অ্যান্টিবায়োটিক প্রয়োজন হয়।",
+  adv_dengue:"বিশ্রাম নিন, হাইড্রেটেড থাকুন এবং অ্যাসপিরিন/আইবুপ্রোফেন এড়িয়ে চলুন। র‍্যাশ বা গাঁটে ব্যথাসহ জ্বর হলে দ্রুত ডাক্তার দেখান।",
+  adv_anxietyCond:"গ্রাউন্ডিং কৌশল চেষ্টা করুন এবং বিশ্বস্ত কারো সাথে কথা বলুন। একজন মানসিক স্বাস্থ্য বিশেষজ্ঞ সাহায্য করতে পারেন।",
+  adv_asthma:"কারণগুলো এড়িয়ে চলুন এবং নির্ধারিত ইনহেলার কাছে রাখুন। শ্বাস নিতে কষ্ট হলে জরুরি চিকিৎসা নিন।",
+  adv_skinAllergy:"চুলকানো ও পরিচিত উত্তেজক পদার্থ এড়িয়ে চলুন; হালকা অ্যান্টিহিস্টামিন সাহায্য করতে পারে। ছড়িয়ে পড়লে চর্মরোগ বিশেষজ্ঞ দেখান।",
+  adv_hypertensionRisk:"পরিশ্রম এড়িয়ে চলুন এবং লক্ষণ পর্যবেক্ষণ করুন। বুকে ব্যথা বা চাপ হলে দ্রুত চিকিৎসা মূল্যায়ন প্রয়োজন।"
+},
+ar:{brand_tag:"فحص هجين مستوحى من الكم",hero_title:"كيف تشعر الآن؟",
+  hero_sub:"أجب عن بعض الأسئلة السريعة واحصل فورًا على فكرة معلوماتية عن صحتك — بالإضافة إلى من يجب زيارته لاحقًا.",
+  start_btn:"بدء فحص الأعراض",mood_good:"بخير",mood_okay:"لا بأس",mood_unwell:"غير بخير",mood_veryunwell:"سيء جدًا",
+  step_feeling:"الشعور",step_symptoms:"الأعراض",step_questions:"الأسئلة",step_results:"النتائج",step_care:"إيجاد طبيب",
+  symptoms_title:"اختر جميع الأعراض التي تعاني منها حاليًا",symptoms_sub:"اختر كل ما ينطبق — يمكنك اختيار أكثر من عرض.",
+  next_btn:"متابعة",back_btn:"رجوع",questions_title:"بعض الأسئلة السريعة بنعم أو لا",question_of:"السؤال {n} من {total}",
+  yes_btn:"نعم",no_btn:"لا",results_title:"هذا ما تشير إليه إجاباتك",results_sub:"هذه تقديرات معلوماتية فقط، وليست تشخيصًا طبيًا.",
+  match_label:"احتمال التطابق",advice_label:"ما يجب فعله الآن",specialist_label:"الطبيب المناسب",
+  find_doctors_btn:"إيجاد أطباء قريبين",restart_btn:"البدء من جديد",
+  emergency_title:"اطلب رعاية طبية فورية",
+  emergency_body:"قد تشير بعض الأعراض التي اخترتها إلى حالة طوارئ طبية. يرجى الاتصال برقم الطوارئ المحلي أو التوجه إلى أقرب غرفة طوارئ فورًا.",
+  no_symptoms_note:"اختر عرضًا واحدًا على الأقل للمتابعة.",
+  reminder_title:"ضبط تذكير صحي",reminder_label:"ملاحظة التذكير",reminder_time:"التاريخ والوقت",
+  reminder_save:"حفظ التذكير",reminder_list_title:"تذكيراتك",reminder_empty:"لا توجد تذكيرات بعد.",
+  reminder_delete:"إزالة",reminder_note_placeholder:"مثال: تناول الدواء، موعد المتابعة",
+  notif_hint:"يعمل التذكير فقط أثناء بقاء هذه الصفحة مفتوحة. للأمور المهمة، أضف تذكيرًا في هاتفك أيضًا.",
+  disclaimer_short:"هذا ليس تشخيصًا طبيًا. استشر دائمًا طبيبًا مرخصًا. في حالات الطوارئ، اتصل برقم الطوارئ المحلي.",
+  footer_note:"VitalQ هو عرض توضيحي معلوماتي للفحص يستخدم نموذج تقييم شفافًا قائمًا على القواعد — وليس جهازًا طبيًا معتمدًا.",
+  low_confidence:"لم تتطابق إجاباتك بوضوح مع حالة معينة. إذا استمرت الأعراض أو ساءت، يرجى استشارة طبيب عام.",
+  sym_fever:"حمى",sym_cough:"سعال",sym_headache:"صداع",sym_fatigue:"إرهاق",sym_soreThroat:"التهاب الحلق",
+  sym_bodyAche:"ألم في الجسم",sym_nausea:"غثيان",sym_diarrhea:"إسهال",sym_chestPain:"ألم في الصدر",
+  sym_breathShort:"ضيق في التنفس",sym_dizziness:"دوخة",sym_rash:"طفح جلدي",sym_jointPain:"ألم في المفاصل",
+  sym_abdominalPain:"ألم في البطن",sym_runnyNose:"سيلان الأنف",sym_lossAppetite:"فقدان الشهية",
+  sym_frequentUrination:"تكرر التبول",sym_anxietyMood:"قلق / مزاج منخفض",sym_insomnia:"صعوبة النوم",
+  sym_burningUrination:"حرقة عند التبول",
+  q_duration:"هل استمر هذا لأكثر من 3 أيام؟",q_worsening:"هل يزداد سوءًا بدلاً من التحسن؟",
+  q_highFever:"هل درجة حرارة جسمك أعلى من 38 درجة مئوية (100.4 فهرنهايت)؟",q_contact:"هل كنت بالقرب من شخص مريض مؤخرًا؟",
+  q_breath:"هل تعاني من صعوبة ملحوظة في التنفس؟",q_rashSpread:"هل الطفح الجلدي ينتشر أو يسبب حكة؟",
+  q_vomit:"هل تعجز عن إبقاء السوائل في معدتك؟",q_chestPressure:"هل تشعر بضغط أو ضيق في الصدر؟",
+  q_weightLoss:"هل فقدت وزنًا دون قصد؟",q_chronic:"هل لديك حالة مزمنة مثل السكري أو الربو أو مرض القلب؟",
+  q_travel:"هل سافرت مؤخرًا أو أمضيت وقتًا في منطقة كثيرة البعوض؟",q_lightSound:"هل يزداد الشعور سوءًا بالضوء أو الصوت؟",
+  q_burning:"هل تشعر بحرقة عند التبول؟",q_stress:"هل تعرضت لتوتر غير معتاد أو نوم سيئ مؤخرًا؟",
+  q_seasonal:"هل يحدث هذا غالبًا في مواسم معينة أو بالقرب من الغبار أو حبوب اللقاح؟",q_painScale:"هل تصنف الانزعاج بأنه شديد (7 أو أعلى من 10)؟",
+  q_appetite:"هل فقدت شهيتك؟",q_recurring:"هل حدث لك هذا من قبل بشكل مشابه؟",
+  cond_commonCold:"نزلة برد / إنفلونزا",cond_migraine:"صداع نصفي / صداع توتري",cond_gastro:"التهاب المعدة والأمعاء",
+  cond_allergicRhinitis:"التهاب الأنف التحسسي الموسمي",cond_uti:"التهاب المسالك البولية",cond_dengue:"حمى الضنك / حمى فيروسية",
+  cond_anxietyCond:"قلق / أعراض متعلقة بالتوتر",cond_asthma:"الربو / التهاب الشعب الهوائية",cond_skinAllergy:"حساسية الجلد / التهاب الجلد",
+  cond_hypertensionRisk:"احتمال ارتفاع ضغط الدم / إجهاد القلب",
+  spec_generalPhysician:"طبيب عام",spec_neurologist:"طبيب أعصاب",spec_gastroenterologist:"طبيب جهاز هضمي",
+  spec_entAllergist:"طبيب أنف وأذن وحنجرة / حساسية",spec_urologist:"طبيب مسالك بولية",spec_infectiousDisease:"طبيب عام / أخصائي أمراض معدية",
+  spec_psychiatrist:"طبيب نفسي / أخصائي نفسي",spec_pulmonologist:"طبيب رئة",spec_dermatologist:"طبيب جلدية",
+  spec_cardiologist:"طبيب قلب",
+  adv_commonCold:"استرح واشرب السوائل وراقب درجة حرارتك. راجع الطبيب إذا استمرت الحمى أكثر من 3 أيام.",
+  adv_migraine:"استرح في غرفة مظلمة وهادئة واشرب السوائل. راجع طبيب أعصاب إذا كان الصداع متكررًا أو شديدًا.",
+  adv_gastro:"اشرب سوائل تحتوي على الأملاح وتناول طعامًا خفيفًا. اطلب رعاية عاجلة إذا تعذر إبقاء السوائل.",
+  adv_allergicRhinitis:"تجنب المسببات المعروفة وفكر في مضاد للهيستامين. راجع أخصائي حساسية إذا استمرت الأعراض.",
+  adv_uti:"اشرب كمية وافرة من الماء ولا تؤجل العلاج. عادة ما تحتاج التهابات المسالك البولية إلى مضاد حيوي.",
+  adv_dengue:"استرح واشرب السوائل وتجنب الأسبرين/الإيبوبروفين. اطلب رعاية طبية سريعًا عند وجود حمى مع طفح أو ألم مفاصل.",
+  adv_anxietyCond:"جرب تقنيات التهدئة وتحدث مع شخص تثق به. يمكن لأخصائي الصحة النفسية أن يساعد.",
+  adv_asthma:"تجنب المسببات واحتفظ بجهاز الاستنشاق الموصوف قريبًا منك. اطلب رعاية عاجلة إذا كان التنفس صعبًا.",
+  adv_skinAllergy:"تجنب الحك والمهيجات المعروفة؛ قد يساعد مضاد هيستامين خفيف. راجع طبيب جلدية إذا انتشر الطفح.",
+  adv_hypertensionRisk:"تجنب الإجهاد وراقب الأعراض عن كثب. يتطلب ألم أو ضغط الصدر تقييمًا طبيًا سريعًا."
+},
+pt:{brand_tag:"Triagem híbrida inspirada em quântica",hero_title:"Como você está se sentindo agora?",
+  hero_sub:"Responda algumas perguntas rápidas e obtenha um insight de saúde instantâneo e informativo — além de quem procurar em seguida.",
+  start_btn:"Iniciar verificação de sintomas",mood_good:"Bem",mood_okay:"Mais ou menos",mood_unwell:"Mal",mood_veryunwell:"Muito mal",
+  step_feeling:"Sensação",step_symptoms:"Sintomas",step_questions:"Perguntas",step_results:"Resultados",step_care:"Encontrar médico",
+  symptoms_title:"Selecione todos os sintomas que você está sentindo agora",symptoms_sub:"Escolha tudo que se aplica — pode marcar mais de um.",
+  next_btn:"Continuar",back_btn:"Voltar",questions_title:"Algumas perguntas rápidas de sim ou não",question_of:"Pergunta {n} de {total}",
+  yes_btn:"Sim",no_btn:"Não",results_title:"Aqui está o que suas respostas sugerem",results_sub:"São estimativas informativas, não um diagnóstico médico.",
+  match_label:"Correspondência provável",advice_label:"O que fazer agora",specialist_label:"Médico a procurar",
+  find_doctors_btn:"Encontrar médicos próximos",restart_btn:"Começar de novo",
+  emergency_title:"Procure atendimento médico imediato",
+  emergency_body:"Alguns dos sintomas selecionados podem indicar uma emergência médica. Entre em contato com o número de emergência local ou vá ao pronto-socorro mais próximo imediatamente.",
+  no_symptoms_note:"Selecione pelo menos um sintoma para continuar.",
+  reminder_title:"Definir um lembrete de saúde",reminder_label:"Nota do lembrete",reminder_time:"Data e hora",
+  reminder_save:"Salvar lembrete",reminder_list_title:"Seus lembretes",reminder_empty:"Ainda não há lembretes.",
+  reminder_delete:"Remover",reminder_note_placeholder:"ex. Tomar remédio, consulta de retorno",
+  notif_hint:"Os lembretes só disparam enquanto esta página estiver aberta. Para algo importante, adicione também um lembrete no celular.",
+  disclaimer_short:"Isto não é um diagnóstico médico. Consulte sempre um médico licenciado. Em uma emergência, ligue para o número de emergência local.",
+  footer_note:"VitalQ é uma demonstração informativa de triagem que usa um modelo de pontuação transparente baseado em regras — não é um dispositivo médico certificado.",
+  low_confidence:"Suas respostas não corresponderam claramente a uma condição específica. Se os sintomas persistirem ou piorarem, consulte um clínico geral.",
+  sym_fever:"Febre",sym_cough:"Tosse",sym_headache:"Dor de cabeça",sym_fatigue:"Fadiga",sym_soreThroat:"Dor de garganta",
+  sym_bodyAche:"Dor no corpo",sym_nausea:"Náusea",sym_diarrhea:"Diarreia",sym_chestPain:"Dor no peito",
+  sym_breathShort:"Falta de ar",sym_dizziness:"Tontura",sym_rash:"Erupção cutânea",sym_jointPain:"Dor nas articulações",
+  sym_abdominalPain:"Dor abdominal",sym_runnyNose:"Nariz escorrendo",sym_lossAppetite:"Perda de apetite",
+  sym_frequentUrination:"Urinar com frequência",sym_anxietyMood:"Ansiedade / humor baixo",sym_insomnia:"Dificuldade para dormir",
+  sym_burningUrination:"Ardência ao urinar",
+  q_duration:"Isso já dura mais de 3 dias?",q_worsening:"Está piorando em vez de melhorar?",
+  q_highFever:"Sua temperatura corporal está acima de 38 °C (100,4 °F)?",q_contact:"Você esteve perto de alguém que ficou doente recentemente?",
+  q_breath:"Você tem dificuldade perceptível para respirar?",q_rashSpread:"A erupção está se espalhando ou coçando?",
+  q_vomit:"Você não consegue manter líquidos no corpo?",q_chestPressure:"Você sente pressão ou aperto no peito?",
+  q_weightLoss:"Você perdeu peso sem tentar?",q_chronic:"Você tem alguma condição crônica como diabetes, asma ou doença cardíaca?",
+  q_travel:"Você viajou recentemente ou esteve em uma área com muitos mosquitos?",q_lightSound:"A luz ou o som pioram a sensação?",
+  q_burning:"Sente ardência ao urinar?",q_stress:"Você tem tido estresse incomum ou dormido mal ultimamente?",
+  q_seasonal:"Isso acontece principalmente em certas estações ou perto de poeira ou pólen?",q_painScale:"Você classificaria o desconforto como grave (7 ou mais em 10)?",
+  q_appetite:"Você perdeu o apetite?",q_recurring:"Isso já aconteceu com você antes de forma parecida?",
+  cond_commonCold:"Resfriado comum / Gripe",cond_migraine:"Enxaqueca / Cefaleia tensional",cond_gastro:"Gastroenterite",
+  cond_allergicRhinitis:"Rinite alérgica sazonal",cond_uti:"Infecção urinária",cond_dengue:"Dengue / Febre viral",
+  cond_anxietyCond:"Ansiedade / sintomas relacionados ao estresse",cond_asthma:"Asma / Bronquite",cond_skinAllergy:"Alergia de pele / Dermatite",
+  cond_hypertensionRisk:"Possível pressão alta / esforço cardíaco",
+  spec_generalPhysician:"Clínico geral",spec_neurologist:"Neurologista",spec_gastroenterologist:"Gastroenterologista",
+  spec_entAllergist:"Otorrinolaringologista / Alergista",spec_urologist:"Urologista",spec_infectiousDisease:"Clínico geral / Infectologista",
+  spec_psychiatrist:"Psiquiatra / Psicólogo",spec_pulmonologist:"Pneumologista",spec_dermatologist:"Dermatologista",
+  spec_cardiologist:"Cardiologista",
+  adv_commonCold:"Descanse, hidrate-se e monitore sua temperatura. Procure um médico se a febre durar mais de 3 dias.",
+  adv_migraine:"Descanse em um ambiente escuro e silencioso e hidrate-se. Procure um neurologista se as dores forem frequentes ou intensas.",
+  adv_gastro:"Beba líquidos com eletrólitos e coma alimentos leves. Procure atendimento urgente se não conseguir manter líquidos.",
+  adv_allergicRhinitis:"Evite gatilhos conhecidos e considere um anti-histamínico. Procure um alergista se os sintomas persistirem.",
+  adv_uti:"Beba bastante água e não adie o tratamento. Infecções urinárias geralmente precisam de antibiótico com receita.",
+  adv_dengue:"Descanse, hidrate-se e evite aspirina/ibuprofeno. Procure atendimento médico rapidamente se houver febre com erupção ou dor nas articulações.",
+  adv_anxietyCond:"Experimente técnicas de ancoragem e converse com alguém de confiança. Um profissional de saúde mental pode ajudar.",
+  adv_asthma:"Evite gatilhos e mantenha o inalador prescrito por perto. Procure atendimento urgente se a respiração estiver difícil.",
+  adv_skinAllergy:"Evite coçar e irritantes conhecidos; um anti-histamínico leve pode ajudar. Procure um dermatologista se espalhar.",
+  adv_hypertensionRisk:"Evite esforços e monitore os sintomas de perto. Dor ou pressão no peito exige avaliação médica rápida."
+},
+ru:{brand_tag:"Гибридный скрининг на основе квантовых принципов",hero_title:"Как вы себя чувствуете прямо сейчас?",
+  hero_sub:"Ответьте на несколько быстрых вопросов и мгновенно получите информационную оценку здоровья — а также узнайте, к какому врачу обратиться.",
+  start_btn:"Начать проверку симптомов",mood_good:"Хорошо",mood_okay:"Нормально",mood_unwell:"Плохо",mood_veryunwell:"Очень плохо",
+  step_feeling:"Самочувствие",step_symptoms:"Симптомы",step_questions:"Вопросы",step_results:"Результаты",step_care:"Найти врача",
+  symptoms_title:"Отметьте все симптомы, которые вы сейчас испытываете",symptoms_sub:"Выберите всё, что подходит — можно выбрать несколько.",
+  next_btn:"Продолжить",back_btn:"Назад",questions_title:"Несколько быстрых вопросов да/нет",question_of:"Вопрос {n} из {total}",
+  yes_btn:"Да",no_btn:"Нет",results_title:"Вот что предполагают ваши ответы",results_sub:"Это информационные оценки, а не медицинский диагноз.",
+  match_label:"Вероятное совпадение",advice_label:"Что делать сейчас",specialist_label:"К какому врачу обратиться",
+  find_doctors_btn:"Найти врачей поблизости",restart_btn:"Начать заново",
+  emergency_title:"Немедленно обратитесь за медицинской помощью",
+  emergency_body:"Некоторые из выбранных симптомов могут указывать на неотложное состояние. Пожалуйста, свяжитесь с местной службой экстренной помощи или немедленно обратитесь в ближайшее отделение неотложной помощи.",
+  no_symptoms_note:"Выберите хотя бы один симптом, чтобы продолжить.",
+  reminder_title:"Установить напоминание о здоровье",reminder_label:"Заметка напоминания",reminder_time:"Дата и время",
+  reminder_save:"Сохранить напоминание",reminder_list_title:"Ваши напоминания",reminder_empty:"Пока нет напоминаний.",
+  reminder_delete:"Удалить",reminder_note_placeholder:"напр. Принять лекарство, повторный приём",
+  notif_hint:"Напоминания срабатывают, только пока эта страница открыта. Для важного также добавьте напоминание в телефоне.",
+  disclaimer_short:"Это не медицинский диагноз. Всегда консультируйтесь с лицензированным врачом. В экстренной ситуации звоните в местную службу экстренной помощи.",
+  footer_note:"VitalQ — это информационная демонстрация скрининга с прозрачной, основанной на правилах моделью оценки, а не сертифицированное медицинское устройство.",
+  low_confidence:"Ваши ответы явно не соответствуют конкретному состоянию. Если симптомы сохраняются или усиливаются, обратитесь к терапевту.",
+  sym_fever:"Жар",sym_cough:"Кашель",sym_headache:"Головная боль",sym_fatigue:"Усталость",sym_soreThroat:"Боль в горле",
+  sym_bodyAche:"Ломота в теле",sym_nausea:"Тошнота",sym_diarrhea:"Диарея",sym_chestPain:"Боль в груди",
+  sym_breathShort:"Одышка",sym_dizziness:"Головокружение",sym_rash:"Кожная сыпь",sym_jointPain:"Боль в суставах",
+  sym_abdominalPain:"Боль в животе",sym_runnyNose:"Насморк",sym_lossAppetite:"Потеря аппетита",
+  sym_frequentUrination:"Частое мочеиспускание",sym_anxietyMood:"Тревога / подавленное настроение",sym_insomnia:"Проблемы со сном",
+  sym_burningUrination:"Жжение при мочеиспускании",
+  q_duration:"Это продолжается больше 3 дней?",q_worsening:"Становится хуже, а не лучше?",
+  q_highFever:"Температура тела выше 38 °C (100,4 °F)?",q_contact:"Вы недавно контактировали с больным человеком?",
+  q_breath:"У вас заметные затруднения дыхания?",q_rashSpread:"Сыпь распространяется или чешется?",
+  q_vomit:"Вы не можете удержать жидкость?",q_chestPressure:"Вы чувствуете давление или стеснение в груди?",
+  q_weightLoss:"Вы непреднамеренно похудели?",q_chronic:"У вас есть хроническое заболевание, например диабет, астма или болезнь сердца?",
+  q_travel:"Вы недавно путешествовали или были в местах с комарами?",q_lightSound:"Свет или звук усиливают неприятные ощущения?",
+  q_burning:"Есть жжение при мочеиспускании?",q_stress:"В последнее время у вас был необычный стресс или плохой сон?",
+  q_seasonal:"Это происходит в основном в определённые сезоны или рядом с пылью/пыльцой?",q_painScale:"Вы бы оценили дискомфорт как сильный (7 и выше из 10)?",
+  q_appetite:"У вас пропал аппетит?",q_recurring:"Такое уже случалось с вами раньше похожим образом?",
+  cond_commonCold:"Простуда / Грипп",cond_migraine:"Мигрень / Головная боль напряжения",cond_gastro:"Гастроэнтерит",
+  cond_allergicRhinitis:"Сезонный аллергический ринит",cond_uti:"Инфекция мочевыводящих путей",cond_dengue:"Денге / Вирусная лихорадка",
+  cond_anxietyCond:"Тревожность / симптомы, связанные со стрессом",cond_asthma:"Астма / Бронхит",cond_skinAllergy:"Кожная аллергия / Дерматит",
+  cond_hypertensionRisk:"Возможное повышенное давление / нагрузка на сердце",
+  spec_generalPhysician:"Терапевт",spec_neurologist:"Невролог",spec_gastroenterologist:"Гастроэнтеролог",
+  spec_entAllergist:"ЛОР / Аллерголог",spec_urologist:"Уролог",spec_infectiousDisease:"Терапевт / Инфекционист",
+  spec_psychiatrist:"Психиатр / Психолог",spec_pulmonologist:"Пульмонолог",spec_dermatologist:"Дерматолог",
+  spec_cardiologist:"Кардиолог",
+  adv_commonCold:"Отдыхайте, пейте больше жидкости и следите за температурой. Обратитесь к врачу, если жар держится дольше 3 дней.",
+  adv_migraine:"Отдохните в тёмной тихой комнате и пейте достаточно жидкости. Обратитесь к неврологу при частых или сильных болях.",
+  adv_gastro:"Пейте жидкости с электролитами и ешьте лёгкую пищу. Немедленно обратитесь за помощью, если не удаётся удержать жидкость.",
+  adv_allergicRhinitis:"Избегайте известных триггеров и рассмотрите антигистаминный препарат. Обратитесь к аллергологу при стойких симптомах.",
+  adv_uti:"Пейте много воды и не откладывайте лечение. Инфекции мочевых путей обычно требуют антибиотиков по назначению.",
+  adv_dengue:"Отдыхайте, пейте жидкость и избегайте аспирина/ибупрофена. Быстро обратитесь за помощью при лихорадке с сыпью или болью в суставах.",
+  adv_anxietyCond:"Попробуйте техники заземления и поговорите с тем, кому доверяете. Специалист по психическому здоровью может помочь.",
+  adv_asthma:"Избегайте триггеров и держите назначенный ингалятор под рукой. При затруднённом дыхании срочно обратитесь за помощью.",
+  adv_skinAllergy:"Не расчёсывайте и избегайте известных раздражителей; может помочь лёгкий антигистаминный препарат. При распространении обратитесь к дерматологу.",
+  adv_hypertensionRisk:"Избегайте нагрузок и внимательно следите за симптомами. Боль или давление в груди требуют срочной медицинской оценки."
+},
+zh:{brand_tag:"混合量子启发式筛查",hero_title:"你现在感觉怎么样?",
+  hero_sub:"回答几个简短问题,立即获得健康信息参考——以及接下来该看哪位医生。",
+  start_btn:"开始症状检查",mood_good:"良好",mood_okay:"一般",mood_unwell:"不适",mood_veryunwell:"非常不适",
+  step_feeling:"感觉",step_symptoms:"症状",step_questions:"问题",step_results:"结果",step_care:"寻找医生",
+  symptoms_title:"请选择您目前正在经历的所有症状",symptoms_sub:"选择所有符合的项目——可以多选。",
+  next_btn:"继续",back_btn:"返回",questions_title:"几个简短的是/否问题",question_of:"第 {n} 题,共 {total} 题",
+  yes_btn:"是",no_btn:"否",results_title:"根据您的回答,以下是可能的情况",results_sub:"这些只是信息性估计,并非医学诊断。",
+  match_label:"可能匹配度",advice_label:"现在该怎么做",specialist_label:"建议就诊科室",
+  find_doctors_btn:"查找附近医生",restart_btn:"重新开始",
+  emergency_title:"请立即就医",
+  emergency_body:"您所选的部分症状可能提示医疗紧急情况。请立即联系当地急救电话或前往最近的急诊室。",
+  no_symptoms_note:"请至少选择一个症状以继续。",
+  reminder_title:"设置健康提醒",reminder_label:"提醒备注",reminder_time:"日期和时间",
+  reminder_save:"保存提醒",reminder_list_title:"您的提醒",reminder_empty:"暂无提醒。",
+  reminder_delete:"删除",reminder_note_placeholder:"例如:服药、复诊预约",
+  notif_hint:"只有在此页面保持打开时,提醒才会触发。对于重要事项,请同时在手机上设置提醒。",
+  disclaimer_short:"这不是医学诊断。请务必咨询有执照的医生。如遇紧急情况,请拨打当地急救电话。",
+  footer_note:"VitalQ 是一个信息性筛查演示,使用透明的、基于规则的评分模型——并非经认证的医疗器械。",
+  low_confidence:"您的回答未明显匹配某一特定病症。如果症状持续或加重,请咨询全科医生。",
+  sym_fever:"发烧",sym_cough:"咳嗽",sym_headache:"头痛",sym_fatigue:"疲劳",sym_soreThroat:"喉咙痛",
+  sym_bodyAche:"身体酸痛",sym_nausea:"恶心",sym_diarrhea:"腹泻",sym_chestPain:"胸痛",
+  sym_breathShort:"呼吸急促",sym_dizziness:"头晕",sym_rash:"皮疹",sym_jointPain:"关节痛",
+  sym_abdominalPain:"腹痛",sym_runnyNose:"流鼻涕",sym_lossAppetite:"食欲不振",
+  sym_frequentUrination:"尿频",sym_anxietyMood:"焦虑 / 情绪低落",sym_insomnia:"失眠",
+  sym_burningUrination:"排尿灼热感",
+  q_duration:"这种情况持续超过3天了吗?",q_worsening:"情况是在恶化而不是好转吗?",
+  q_highFever:"您的体温是否超过38°C(100.4°F)?",q_contact:"您最近是否接触过生病的人?",
+  q_breath:"您是否有明显的呼吸困难?",q_rashSpread:"皮疹是否在扩散或发痒?",
+  q_vomit:"您是否无法保留摄入的液体?",q_chestPressure:"您是否感到胸部有压迫感或紧绷感?",
+  q_weightLoss:"您是否在没有刻意减重的情况下体重下降?",q_chronic:"您是否有糖尿病、哮喘或心脏病等慢性疾病?",
+  q_travel:"您最近是否旅行过或在蚊虫较多的地区停留过?",q_lightSound:"光线或声音是否会让感觉更糟?",
+  q_burning:"排尿时是否有灼热感?",q_stress:"您最近是否承受了异常压力或睡眠不佳?",
+  q_seasonal:"这种情况是否主要发生在特定季节或接触灰尘/花粉时?",q_painScale:"您会将不适程度评为严重(10分中的7分或以上)吗?",
+  q_appetite:"您是否食欲下降?",q_recurring:"您以前是否有过类似的情况?",
+  cond_commonCold:"普通感冒 / 流感",cond_migraine:"偏头痛 / 紧张性头痛",cond_gastro:"肠胃炎",
+  cond_allergicRhinitis:"季节性过敏性鼻炎",cond_uti:"尿路感染",cond_dengue:"登革热 / 病毒性发热",
+  cond_anxietyCond:"焦虑 / 压力相关症状",cond_asthma:"哮喘 / 支气管炎",cond_skinAllergy:"皮肤过敏 / 皮炎",
+  cond_hypertensionRisk:"可能的高血压 / 心脏负荷",
+  spec_generalPhysician:"全科医生",spec_neurologist:"神经科医生",spec_gastroenterologist:"消化内科医生",
+  spec_entAllergist:"耳鼻喉科 / 过敏科医生",spec_urologist:"泌尿科医生",spec_infectiousDisease:"全科医生 / 感染科专家",
+  spec_psychiatrist:"精神科医生 / 心理医生",spec_pulmonologist:"呼吸科医生",spec_dermatologist:"皮肤科医生",
+  spec_cardiologist:"心脏科医生",
+  adv_commonCold:"多休息、多喝水并监测体温。如发烧持续超过3天,请就医。",
+  adv_migraine:"在黑暗安静的房间休息并保持水分。如头痛频繁或剧烈,请咨询神经科医生。",
+  adv_gastro:"饮用含电解质的液体并进食清淡食物。如无法摄入液体,请立即就医。",
+  adv_allergicRhinitis:"避免已知诱因,可考虑服用抗组胺药。如症状持续,请咨询过敏专科医生。",
+  adv_uti:"多喝水,不要延误治疗。尿路感染通常需要处方抗生素。",
+  adv_dengue:"多休息、多喝水,避免服用阿司匹林/布洛芬。如发烧伴皮疹或关节痛,请尽快就医。",
+  adv_anxietyCond:"尝试一些放松技巧,并与信任的人交流。心理健康专业人士可以提供帮助。",
+  adv_asthma:"避免诱因,并随身携带处方吸入器。如呼吸困难,请立即就医。",
+  adv_skinAllergy:"避免抓挠和已知刺激物;温和的抗组胺药可能有帮助。如皮疹扩散,请咨询皮肤科医生。",
+  adv_hypertensionRisk:"避免劳累并密切监测症状。胸痛或胸闷需要尽快进行医学评估。"
+},
+};
+
+/* ============================= STATE ============================= */
+const state = {
+  lang: (navigator.language||'en').slice(0,2),
+  screen: 'welcome',       // welcome | symptoms | questions | results
+  mood: null,
+  selectedSymptoms: new Set(),
+  candidateQuestions: [],  // ordered list of question ids for this session
+  qIndex: 0,
+  answers: {},             // qid -> true/false
+  results: [],             // computed on entering results
+  reminders: []
+};
+if(!T[state.lang]) state.lang = 'en';
+
+function t(key, vars){
+  let str = (T[state.lang] && T[state.lang][key]) || T.en[key] || key;
+  if(vars) Object.keys(vars).forEach(k=> str = str.replace('{'+k+'}', vars[k]));
+  return str;
+}
+
+/* ============================= STORAGE (reminders) ============================= */
+async function loadReminders(){
+  try{
+    const res = await window.storage.get('vitalq:reminders', false);
+    state.reminders = res && res.value ? JSON.parse(res.value) : [];
+  }catch(e){ state.reminders = []; }
+  scheduleAllReminders();
+}
+async function saveReminders(){
+  try{ await window.storage.set('vitalq:reminders', JSON.stringify(state.reminders), false); }catch(e){}
+}
+function scheduleAllReminders(){
+  const now = Date.now();
+  state.reminders.forEach(r=>{
+    const delay = new Date(r.time).getTime() - now;
+    if(delay > 0 && delay < 2147000000){
+      setTimeout(()=> fireNotification(r.note), delay);
+    }
+  });
+}
+function fireNotification(note){
+  if('Notification' in window && Notification.permission === 'granted'){
+    new Notification('VitalQ', {body: note});
+  }
+}
+async function addReminder(note, time){
+  if('Notification' in window && Notification.permission === 'default'){
+    try{ await Notification.requestPermission(); }catch(e){}
+  }
+  const r = {id: 'r'+Date.now(), note, time};
+  state.reminders.push(r);
+  await saveReminders();
+  const delay = new Date(time).getTime() - Date.now();
+  if(delay > 0 && delay < 2147000000) setTimeout(()=> fireNotification(note), delay);
+  render();
+}
+async function deleteReminder(id){
+  state.reminders = state.reminders.filter(r=>r.id!==id);
+  await saveReminders();
+  render();
+}
+
+/* ============================= SCORING ENGINE ============================= */
+// Transparent rule-based weighted matching engine (quantum-inspired branding only —
+// this is a deterministic scoring model, not an actual quantum computation).
+function pickQuestions(){
+  const selected = state.selectedSymptoms;
+  const ranked = CONDITION_IDS
+    .map(cid=>{
+      const cond = CONDITIONS[cid];
+      let overlap = 0;
+      Object.keys(cond.symptoms).forEach(s=>{ if(selected.has(s)) overlap += cond.symptoms[s]; });
+      return {cid, overlap};
+    })
+    .filter(c=>c.overlap>0)
+    .sort((a,b)=>b.overlap-a.overlap);
+
+  const topConditions = ranked.slice(0,5).map(c=>c.cid);
+  const qset = [];
+  topConditions.forEach(cid=>{
+    CONDITIONS[cid].questions.forEach(q=>{ if(!qset.includes(q)) qset.push(q); });
+  });
+  // fallback: if too few symptom-driven questions, pad with generic ones
+  QUESTION_IDS.forEach(q=>{ if(qset.length<10 && !qset.includes(q)) qset.push(q); });
+  return qset.slice(0,10);
+}
+
+function computeResults(){
+  const selected = state.selectedSymptoms;
+  const scored = CONDITION_IDS.map(cid=>{
+    const cond = CONDITIONS[cid];
+    const symKeys = Object.keys(cond.symptoms);
+    const maxSym = symKeys.reduce((a,k)=>a+cond.symptoms[k],0);
+    let symScore = 0;
+    symKeys.forEach(k=>{ if(selected.has(k)) symScore += cond.symptoms[k]; });
+
+    let qScore = 0, qMax = 0;
+    cond.questions.forEach(qid=>{
+      qMax += 1.5;
+      if(state.answers[qid] === true) qScore += 1.5;
+      else if(state.answers[qid] === false) qScore -= 0.5;
+    });
+    const total = maxSym + qMax;
+    const raw = total>0 ? (symScore+qScore)/total : 0;
+    const pct = Math.max(0, Math.min(0.88, raw)); // cap at 88% — never claim certainty
+    return {cid, pct};
+  })
+  .filter(r=>r.pct>0.12)
+  .sort((a,b)=>b.pct-a.pct)
+  .slice(0,3);
+
+  return scored;
+}
+
+function hasEmergencyFlags(){
+  const s = state.selectedSymptoms;
+  return EMERGENCY_COMBOS.some(combo => combo.every(sym=>s.has(sym)));
+}
+
+/* ============================= RENDER ============================= */
+function updateChrome(){
+  document.getElementById('htmlRoot').lang = state.lang;
+  document.getElementById('htmlRoot').dir = RTL.includes(state.lang) ? 'rtl' : 'ltr';
+  document.getElementById('footerNote').textContent = t('footer_note');
+  document.getElementById('disclaimerBar').innerHTML = '⚠ <b>'+t('disclaimer_short').split('.')[0]+'.</b> ' + t('disclaimer_short').split('.').slice(1).join('.').trim();
+  const sel = document.getElementById('langSelect');
+  if(!sel.options.length){
+    LANGS.forEach(l=>{
+      const opt = document.createElement('option');
+      opt.value = l.code; opt.textContent = l.name;
+      sel.appendChild(opt);
+    });
+    sel.addEventListener('change', e=>{ state.lang = e.target.value; render(); });
+  }
+  sel.value = state.lang;
+}
+
+function stepsBar(activeIdx){
+  const labels = [t('step_feeling'),t('step_symptoms'),t('step_questions'),t('step_results'),t('step_care')];
+  let dots = '<div class="step-label-row">'+labels.map((l,i)=>`<span style="opacity:${i<=activeIdx?1:0.4}">${l}</span>`).join('')+'</div><div class="steps">';
+  for(let i=0;i<labels.length;i++){
+    let cls = i<activeIdx?'done':(i===activeIdx?'active':'');
+    dots += `<div class="step-dot ${cls}"></div>`;
+  }
+  dots += '</div>';
+  return dots;
+}
+
+function emergencyBannerHTML(){
+  if(!hasEmergencyFlags()) return '';
+  return `<div class="banner emergency">
+    <div class="b-icon">🚨</div>
+    <div><h3>${t('emergency_title')}</h3><p>${t('emergency_body')}</p></div>
+  </div>`;
+}
+
+function render(){
+  updateChrome();
+  const app = document.getElementById('app');
+  if(state.screen === 'welcome') app.innerHTML = renderWelcome();
+  else if(state.screen === 'symptoms') app.innerHTML = renderSymptoms();
+  else if(state.screen === 'questions') app.innerHTML = renderQuestions();
+  else if(state.screen === 'results') app.innerHTML = renderResults();
+  attachHandlers();
+  if(state.screen === 'results'){
+    requestAnimationFrame(()=>{
+      document.querySelectorAll('.bar-fill').forEach(el=>{
+        const pct = el.getAttribute('data-pct');
+        requestAnimationFrame(()=>{ el.style.width = pct+'%'; });
+      });
+    });
+  }
+}
+
+function renderWelcome(){
+  const moods = [['good','mood_good'],['okay','mood_okay'],['unwell','mood_unwell'],['veryunwell','mood_veryunwell']];
+  return `
+    <div class="eyebrow"><span class="dot"></span>${t('brand_tag')}</div>
+    <h1 class="hero">${t('hero_title')}</h1>
+    <p class="sub">${t('hero_sub')}</p>
+    <div class="signature">
+      <svg viewBox="0 0 560 140">
+        <defs>
+          <linearGradient id="sigGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#33D6BD"/>
+            <stop offset="55%" stop-color="#8B7CF6"/>
+            <stop offset="100%" stop-color="#8B7CF6"/>
+          </linearGradient>
+        </defs>
+        <path class="sig-path" d="M10,70 L70,70 L85,30 L100,110 L115,70 L160,70 L185,45 L210,95 L235,70
+          L270,70 L300,40 L330,100 L360,70
+          L385,70 L400,50 L420,90 L440,70 L470,70 L500,50 L530,70 L550,70"/>
+        <circle class="sig-node n1" cx="385" cy="70" r="4.5"/>
+        <circle class="sig-node n2" cx="440" cy="70" r="4.5"/>
+        <circle class="sig-node n3" cx="500" cy="50" r="4.5"/>
+        <circle class="sig-node n4" cx="550" cy="70" r="4.5"/>
+      </svg>
+    </div>
+    <div class="mood-row">
+      ${moods.map(([id,key])=>`<button class="chip ${state.mood===id?'selected':''}" data-mood="${id}">${t(key)}</button>`).join('')}
+    </div>
+    <button class="btn-primary" id="startBtn">${t('start_btn')} →</button>
+  `;
+}
+
+function renderSymptoms(){
+  return `
+    ${stepsBar(1)}
+    <h2 class="display" style="font-size:26px;margin:0 0 8px;">${t('symptoms_title')}</h2>
+    <p class="sub" style="margin-bottom:24px;">${t('symptoms_sub')}</p>
+    ${emergencyBannerHTML()}
+    <div class="symptom-grid">
+      ${SYMPTOM_IDS.map(id=>`
+        <button class="symptom-card ${state.selectedSymptoms.has(id)?'selected':''}" data-symptom="${id}">
+          <div class="symptom-top">
+            <span class="ic">${SYMPTOM_ICONS[id]}</span>
+            <span class="check">${state.selectedSymptoms.has(id)?'✓':''}</span>
+          </div>
+          <span class="lbl">${t('sym_'+id)}</span>
+        </button>
+      `).join('')}
+    </div>
+    ${state.selectedSymptoms.size===0 ? `<p class="sub" style="color:var(--amber);margin-bottom:16px;">${t('no_symptoms_note')}</p>` : ''}
+    <div style="display:flex;gap:10px;">
+      <button class="btn-secondary" id="backBtn">${t('back_btn')}</button>
+      <button class="btn-primary" id="continueBtn" ${state.selectedSymptoms.size===0?'disabled':''}>${t('next_btn')} →</button>
+    </div>
+  `;
+}
+
+function renderQuestions(){
+  const qid = state.candidateQuestions[state.qIndex];
+  return `
+    ${stepsBar(2)}
+    ${emergencyBannerHTML()}
+    <div class="qcard">
+      <div class="qcount">${t('question_of',{n:state.qIndex+1,total:state.candidateQuestions.length})}</div>
+      <h3 class="qtext">${t(qid)}</h3>
+      <div class="yn-row">
+        <button class="yn-btn yes" data-ans="true">${t('yes_btn')}</button>
+        <button class="yn-btn no" data-ans="false">${t('no_btn')}</button>
+      </div>
+    </div>
+    <button class="btn-secondary" id="backBtn">${t('back_btn')}</button>
+  `;
+}
+
+function specialtyMapsUrl(specialtyLabel){
+  const q = encodeURIComponent(specialtyLabel + ' doctor near me');
+  return `https://www.google.com/maps/search/?api=1&query=${q}`;
+}
+
+function renderResults(){
+  const results = state.results;
+  const body = results.length ? results.map(r=>{
+    const cond = CONDITIONS[r.cid];
+    const pct = Math.round(r.pct*100);
+    const specLabel = t('spec_'+cond.specialty);
+    return `
+      <div class="result-card">
+        <div class="result-top">
+          <h3 class="result-name">${t('cond_'+r.cid)}</h3>
+          <div class="result-pct mono">${pct}%</div>
+        </div>
+        <div class="bar-track"><div class="bar-fill" data-pct="${pct}"></div></div>
+        <div class="result-row"><b>${t('advice_label')}</b><span>${t('adv_'+r.cid)}</span></div>
+        <div class="result-row"><b>${t('specialist_label')}</b><span>${specLabel}</span></div>
+        <div class="care-actions">
+          <button class="btn-primary find-doc-btn" data-specialty="${specLabel.replace(/"/g,'')}">📍 ${t('find_doctors_btn')}</button>
+        </div>
+      </div>
+    `;
+  }).join('') : `<div class="banner info"><div class="b-icon">ℹ️</div><div><p>${t('low_confidence')}</p></div></div>`;
+
+  return `
+    ${stepsBar(3)}
+    ${emergencyBannerHTML()}
+    <h2 class="display" style="font-size:26px;margin:0 0 6px;">${t('results_title')}</h2>
+    <p class="sub" style="margin-bottom:24px;">${t('results_sub')}</p>
+    ${body}
+
+    <div class="reminder-box">
+      <h3 class="display" style="font-size:18px;margin:0 0 4px;">${t('reminder_title')}</h3>
+      <p class="sub" style="font-size:12.5px;margin-bottom:16px;">${t('notif_hint')}</p>
+      <div class="field-row">
+        <label>${t('reminder_label')}</label>
+        <input type="text" id="reminderNote" placeholder="${t('reminder_note_placeholder')}">
+      </div>
+      <div class="field-row">
+        <label>${t('reminder_time')}</label>
+        <input type="datetime-local" id="reminderTime">
+      </div>
+      <button class="btn-primary" id="saveReminderBtn">${t('reminder_save')}</button>
+
+      <h4 class="mono" style="font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;">${t('reminder_list_title')}</h4>
+      ${state.reminders.length ? state.reminders.map(r=>`
+        <div class="reminder-item">
+          <div><div>${r.note}</div><span class="rtime">${new Date(r.time).toLocaleString()}</span></div>
+          <button class="rm-del" data-id="${r.id}">${t('reminder_delete')}</button>
+        </div>
+      `).join('') : `<p class="sub" style="font-size:13px;">${t('reminder_empty')}</p>`}
+    </div>
+
+    <div style="margin-top:24px;">
+      <button class="btn-secondary" id="restartBtn">${t('restart_btn')}</button>
+    </div>
+  `;
+}
+
+/* ============================= EVENTS ============================= */
+function attachHandlers(){
+  const app = document.getElementById('app');
+
+  const startBtn = document.getElementById('startBtn');
+  if(startBtn) startBtn.addEventListener('click', ()=>{ state.screen='symptoms'; render(); });
+
+  app.querySelectorAll('[data-mood]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ state.mood = btn.getAttribute('data-mood'); render(); });
+  });
+
+  app.querySelectorAll('[data-symptom]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const id = btn.getAttribute('data-symptom');
+      if(state.selectedSymptoms.has(id)) state.selectedSymptoms.delete(id);
+      else state.selectedSymptoms.add(id);
+      render();
+    });
+  });
+
+  const backBtn = document.getElementById('backBtn');
+  if(backBtn) backBtn.addEventListener('click', ()=>{
+    if(state.screen==='symptoms'){ state.screen='welcome'; }
+    else if(state.screen==='questions'){
+      if(state.qIndex>0){ state.qIndex--; }
+      else { state.screen='symptoms'; }
+    }
+    render();
+  });
+
+  const continueBtn = document.getElementById('continueBtn');
+  if(continueBtn) continueBtn.addEventListener('click', ()=>{
+    state.candidateQuestions = pickQuestions();
+    state.qIndex = 0;
+    state.answers = {};
+    state.screen = 'questions';
+    render();
+  });
+
+  app.querySelectorAll('.yn-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const qid = state.candidateQuestions[state.qIndex];
+      state.answers[qid] = btn.getAttribute('data-ans') === 'true';
+      if(state.qIndex < state.candidateQuestions.length-1){
+        state.qIndex++;
+      } else {
+        state.results = computeResults();
+        state.screen = 'results';
+      }
+      render();
+    });
+  });
+
+  app.querySelectorAll('.find-doc-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const specialty = btn.getAttribute('data-specialty');
+      const openMaps = (lat,lng)=>{
+        const q = encodeURIComponent(specialty + (lat ? ` near ${lat},${lng}` : ' near me'));
+        window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank');
+      };
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(
+          pos=> openMaps(pos.coords.latitude, pos.coords.longitude),
+          ()=> openMaps(null,null),
+          {timeout:4000}
+        );
+      } else openMaps(null,null);
+    });
+  });
+
+  const saveReminderBtn = document.getElementById('saveReminderBtn');
+  if(saveReminderBtn) saveReminderBtn.addEventListener('click', ()=>{
+    const note = document.getElementById('reminderNote').value.trim();
+    const time = document.getElementById('reminderTime').value;
+    if(note && time) addReminder(note, time);
+  });
+
+  app.querySelectorAll('.rm-del').forEach(btn=>{
+    btn.addEventListener('click', ()=> deleteReminder(btn.getAttribute('data-id')));
+  });
+
+  const restartBtn = document.getElementById('restartBtn');
+  if(restartBtn) restartBtn.addEventListener('click', ()=>{
+    state.screen='welcome'; state.mood=null; state.selectedSymptoms=new Set();
+    state.candidateQuestions=[]; state.qIndex=0; state.answers={}; state.results=[];
+    render();
+  });
+}
+
+/* ============================= INIT ============================= */
+loadReminders().then(render);
+</script>
+</body>
+</html>
